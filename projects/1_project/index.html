@@ -35,10 +35,10 @@
 
     <!-- Styles -->
     
-    <link rel="shortcut icon" href="/al-folio/assets/img/webicon.png">
+    <link rel="shortcut icon" href="/assets/img/webicon.png">
     
-    <link rel="stylesheet" href="/al-folio/assets/css/main.css">
-    <link rel="canonical" href="https://alshedivat.github.io/al-folio/projects/1_project/">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="canonical" href="https://ahmadabdel-azim.com/projects/1_project/">
 
     <!-- Dark Mode -->
     
@@ -54,7 +54,7 @@
       <!-- Nav Bar -->
       <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top">
         <div class="container">
-          <a class="navbar-brand title font-weight-lighter" href="/al-folio/"><span class="font-weight-bold">Ahmad Abdel-Azim</span>
+          <a class="navbar-brand title font-weight-lighter" href="//"><span class="font-weight-bold">Ahmad Abdel-Azim</span>
           </a>
           <!-- Social Icons -->
           <!-- Navbar Toggle -->
@@ -70,27 +70,27 @@
 
               <!-- About -->
               <!-- <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/">home</a>
+                <a class="nav-link" href="/">home</a>
               </li> 
                -->
               
               <!-- Blog -->
               <!-- <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/blog/">Blog</a>
+                <a class="nav-link" href="/blog/">Blog</a>
               </li> -->
 
               <!-- Other pages -->
               <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/publications/">Publications</a>
+                <a class="nav-link" href="/publications/">Publications</a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/projects/">Projects</a>
+                <a class="nav-link" href="/projects/">Projects</a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/blog/">Blog</a>
+                <a class="nav-link" href="/blog/">Blog</a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link" href="/al-folio/cv/">CV</a>
+                <a class="nav-link" href="/cv/">CV</a>
               </li>
             </ul>
           </div>
@@ -165,7 +165,7 @@ fixed or tuned by the user. We also assume that \(\beta_j \sim\mathcal{N}(0, \si
 <p>We can start by drawing the full data model in graphical representation to clearly see any conditional independence structures that may be useful in the data. We have,</p>
 
 <div style="text-align: center;">
-    <img src="/al-folio/assets/img/projects/project1/graphical_model.png" style="width:50%; display: block; margin: auto;" alt="Latent Regression Model">
+    <img src="//assets/img/projects/project1/graphical_model.png" style="width:50%; display: block; margin: auto;" alt="Latent Regression Model">
     <br>
     <figcaption>Latent Regression Model</figcaption>
     <br>
@@ -432,7 +432,7 @@ p(\mathbb Z | \boldsymbol\tau, \boldsymbol\beta, \boldsymbol\alpha, \sigma^2_a, 
 </span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot (randomly selected elements)'</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-5-1.png" style="width:100%; display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-5-1.png" style="width:100%; display: block; margin: auto;"></p>
 
 <p>We see that our Gibbs sampler converges fairly fast and well, according to the traceplots above (we only use the first 5 iterations as burn-in); these traceplots reveal no signs of the chain being necessarily stuck anywhere at any point. Note that the \(\boldsymbol\beta\) components converge reasonably well, perhaps due to the initialization to reasonable OLS estimates. Also note that we are implicitly also modeling shrinkage through the prior on \(\beta_j\), assumed to be centered at 0, and this (along with the fact that our features are scaled) explains why the \(\beta_j\) components are centered about 0.</p>
 
@@ -448,7 +448,7 @@ p(\mathbb Z | \boldsymbol\tau, \boldsymbol\beta, \boldsymbol\alpha, \sigma^2_a, 
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-6-1.png" style="display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-6-1.png" style="display: block; margin: auto;"></p>
 
 <p>The ACF plots above display proper mixing in the chain as the
 autocorrelation drops rapidly toward 0 when lag increases, suggesting
@@ -479,7 +479,7 @@ consistent.</p>
     </span><span class="n">xlab</span><span class="p">(</span><span class="s1">'Player statistic'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ylab</span><span class="p">(</span><span class="s1">'Posterior Estimate'</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-7-1.png" style="width: 75%; display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-7-1.png" style="width: 75%; display: block; margin: auto;"></p>
 
 <p>Our results about the \(\beta_k\) components are very reassuring. The 95% posterior intervals and directions make intuitive sense. For example, the estimate for the touchdown percentage of a player is significantly less than 0, which makes sense as touchdown percentage would generally increase the latent score of a player, thereby decreasing their rank.</p>
 
@@ -500,7 +500,7 @@ consistent.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-8-1.png" style="display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-8-1.png" style="display: block; margin: auto;"></p>
 
 <p>Below, we have the posterior means for each player’s scores, standardized within run, since ranking is invariant of score ranking.</p>
 
@@ -576,7 +576,7 @@ consistent.</p>
     </span><span class="n">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">45</span><span class="p">,</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">vjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-11-1.png" style="display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-11-1.png" style="display: block; margin: auto;"></p>
 
 <p>These rankings seem pretty good, relative to the rankings in Table 1!</p>
 
@@ -604,7 +604,7 @@ traceplots of scores for two different rankers, ranker 1 and ranker 2.</p>
 </span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot (ranker 2)'</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-12-1.png" style="width: 100%; display: block; margin: auto;"></p>
+<p><img src="//assets/img/projects/project1/unnamed-chunk-12-1.png" style="width: 100%; display: block; margin: auto;"></p>
 
 <p>We do see some discrepancy between these two rankers, suggesting that
 rankers and in fact using covariates differently to construct their
@@ -658,19 +658,19 @@ ranking, then LASSO might be useful in that context.</p>
     <!-- Masonry & imagesLoaded -->
   <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
-  <script defer src="/al-folio/assets/js/masonry.js" type="text/javascript"></script>
+  <script defer src="/assets/js/masonry.js" type="text/javascript"></script>
     
   <!-- Medium Zoom JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script>
-  <script defer src="/al-folio/assets/js/zoom.js"></script>
+  <script defer src="/assets/js/zoom.js"></script>
 
   <!-- Bootstrap Table -->
   <script defer src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
 
   <!-- Load Common JS -->
-  <script src="/al-folio/assets/js/no_defer.js"></script>
-  <script defer src="/al-folio/assets/js/common.js"></script>
-  <script defer src="/al-folio/assets/js/copy_code.js" type="text/javascript"></script>
+  <script src="/assets/js/no_defer.js"></script>
+  <script defer src="/assets/js/common.js"></script>
+  <script defer src="/assets/js/copy_code.js" type="text/javascript"></script>
 
     
   <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
