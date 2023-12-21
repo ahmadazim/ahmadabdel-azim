@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    <!-- Metadata, OpenGraph and Schema.org -->
+    
+
+    <!-- Standard metadata -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Aggregating Expert Insights through Latent Regression Analysis | Ahmad  Abdel-Azim</title>
+    <meta name="author" content="Ahmad  Abdel-Azim">
+    <meta name="description" content="Ahmad Abdel-Azim">
+    <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website">
+
+
+    <!-- Bootstrap & MDB -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-DF7Zhf293AJxJNTmh5zhoYYIMs2oXitRfBjY+9L//AY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous">
+
+    <!-- Bootstrap Table -->
+    <link defer rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.css">
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.1/css/academicons.min.css" integrity="sha256-i1+4qU2G2860dGGIOJscdC30s9beBXjFfzjWLjBRsBg=" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+    <!-- Code Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/github.css" media="" id="highlight_theme_light">
+
+    
+
+    <!-- Styles -->
+    
+    <link rel="shortcut icon" href="/al-folio/assets/img/webicon.png">
+    
+    <link rel="stylesheet" href="/al-folio/assets/css/main.css">
+    <link rel="canonical" href="https://alshedivat.github.io/al-folio/projects/1_project/">
+
+    <!-- Dark Mode -->
+    
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+    <header>
+
+      <!-- Nav Bar -->
+      <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top">
+        <div class="container">
+          <a class="navbar-brand title font-weight-lighter" href="/al-folio/"><span class="font-weight-bold">Ahmad Abdel-Azim</span>
+          </a>
+          <!-- Social Icons -->
+          <!-- Navbar Toggle -->
+          <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar top-bar"></span>
+            <span class="icon-bar middle-bar"></span>
+            <span class="icon-bar bottom-bar"></span>
+          </button>
+
+          <div class="collapse navbar-collapse text-right" id="navbarNav">
+            <ul class="navbar-nav ml-auto flex-nowrap">
+
+              <!-- About -->
+              <!-- <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/">home</a>
+              </li> 
+               -->
+              
+              <!-- Blog -->
+              <!-- <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/blog/">Blog</a>
+              </li> -->
+
+              <!-- Other pages -->
+              <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/publications/">Publications</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/projects/">Projects</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/blog/">Blog</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/al-folio/cv/">CV</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Scrolling Progress Bar -->
+      <progress id="progress" value="0">
+        <div class="progress-container">
+          <span class="progress-bar"></span>
+        </div>
+      </progress>
+    </header>
+
+
+    <!-- Content -->
+    <div class="container mt-5">
+      
+        <!-- page.html -->
+        <div class="post">
+
+          <header class="post-header">
+            <h1 class="post-title">Aggregating Expert Insights through Latent Regression Analysis</h1>
+            <p class="post-description">Ahmad Abdel-Azim</p>
+          </header>
+
+          <article>
+            <h1 id="setting">Setting</h1>
+
+<p>In this project, we evaluate the ranking of NFL quaterbacks by several expert rankers. We have the ranking lists of the NFL starting quarterbacks from 13 experts in week 12 of season 2014 as well as some summary statistics of the players. While most experts give similar ranking lists, some rankings might be missing, and differences do exist. Further, it is important to understand how the rankings may be dependent of the available summary statistics. Here, we attempt to arrive at an aggregated ranking list of all players taking into account the available covariate information and potential heterogeneity among expert rankings.</p>
+
+<p>We consider the following latent regression model. For a given set of \(M\) ranking lists, \(\boldsymbol\tau = \{\tau_1, \dots, \tau_M\}\), with respect to \(N\) entities (namely, NFL quarterbacks), \(\mathcal{U} = \{1,2, \dots, N\}\). We assume that behind each ranking list, there exists some latent random vector \(\mathbf Z_j = (Z_{1j}, \dots, Z_{Nj})^\top\), where \(Z_{ij}\) represents ranker \(j\)’s evaluation score of the \(i\)th entity, and \(Z_{i_1j} &gt; Z_{i_2j} \iff i_1 \succ i_2\), namely if and only if ranker \(j\) ranks player \(i_1\) ahead of player \(i_2\). So, we have \(\tau_j = \text{rank}(\mathbf Z_j)\), where we again note that \(\tau_j(i_1) &lt; \tau_j(i_2) \iff i_1 \succ i_2\). We also define \(\mathbf Z_i = (Z_{i1}, \dots, Z_{iM})^\top\) as the score evaluations received by player \(i\) across the \(M\) expert rankers. We can thus construct a matrix of all the \(Z_{ij}\). Let this \(N\times M\) matrix be \(\mathbb{Z}\), where the \(i\)th row is \(\mathbf Z_i\) and the \(j\)th column is \(\mathbf Z_j\).</p>
+
+<p>Also let \(\mathbf x_i = (x_{i1}, \dots, x_{ip})^\top\) denote the covariates available for the \(i\)th player, and let \(\boldsymbol\beta = (\beta_1, \dots, \beta_p)^\top\) be the vector of coefficients. Similar to before, we define the matrix \(\mathbf X\), where the rows are the \(\mathbf x_i^\top\). Our full data model then takes the following form:</p>
+
+\[\begin{aligned}
+&amp;Z_{ij} = \alpha_i + \mathbf x_i^\top \boldsymbol\beta + \epsilon_{ij}, \qquad \epsilon_{ij} \sim\mathcal{N}(0,1) \\
+&amp;\tau_j = \text{rank}(\mathbf Z_j) = \text{rank}(Z_{1j}, \dots, Z_{Nj}) \\ 
+&amp; \alpha_i \overset{iid}{\sim} \mathcal{N}(0, \sigma^2_a)
+\end{aligned}\]
+
+<p>for \(i = 1, \dots, N\) and \(j = 1, \dots, M\). We view the \(\alpha_i\) as random effects of each entity.</p>
+
+<p>With the model specified, we can begin by loading and organizing the data below.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"Table1_RankingList.csv"</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">row.names</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span><span class="w">
+</span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"Table2_SummaryStatistics.csv"</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">row.names</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span><span class="w">
+
+</span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span><span class="w">
+</span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span><span class="w">
+</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span><span class="w">
+</span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">(</span><span class="n">as.matrix</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="questions">Questions</h1>
+
+<h2 id="part-1">Part 1</h2>
+
+<p><strong><em>Is it reasonable to assume that \(\text{Var}(\epsilon_{ij}) = 1\) in the model? Can you just assume an unknown variance \(\sigma^2\) for it and try to infer it from the data? Why or why not?</em></strong></p>
+
+<p>Here, we are interested in inferring an aggregated ranking list of all players taking into account the available covariate information as well as the heterogeneity among expert rankings. Since the rank is invariant to scaling, the absolute value of the error variance in the model does not directly affect the inference of the rank \(\tau_j\).</p>
+
+<p>Explicitly, we have \(\mathbf Z_j = \boldsymbol\alpha + \mathbf X \boldsymbol\beta + \boldsymbol\epsilon_j\), meaning that \(\text{Cov}(\mathbf Z_j) = \sigma^2_a\mathbb I_N + \sigma^2_b\mathbf X^\top \mathbf X + \mathbb I_N\). The random effects \(\alpha_i\) here account for the variability across players, and the \(\sigma^2_b\) accounts for the variability on the covariates coefficients (assuming they have variance \(\sigma^2_b\) as in Part 2). Thus, we see that the primary purpose of the error term \(\epsilon_{ij}\) here is to capture the unexplained variability between the rankings of the same player. Based on the data from Table 1, it is not unreasonable to assume that this variability is small, and assuming that \(\text{Var}(\epsilon_{ij}) = 1\) simplifies the model without affecting the inference of the rank, while still capturing any additional variance needed between the observations. Further, note that any additional variance needed to explain the data can simply be accounted for by the \(\sigma^2_a\) from the random effect. So, it seems reasonable to assume a constant error variance and focus on inferring the rank and other model parameters.</p>
+
+<p>Further, assuming an unknown variance \(\sigma^2\) for \(\text{Var}(\epsilon_{ij})\) and trying to infer it from the data will not necessarily work well since we never actually assume the \(Z_{ij}\). These are in fact latent variables. Given that we only see the rank of the \(Z_{ij}\), and rank is invariant of scaling, assuming \(\text{Var}(\epsilon_{ij}) = 1\) is actually a very reasonable and viable strategy.</p>
+
+<h2 id="part-2">Part 2</h2>
+
+<p>We now Assume that \(\sigma^2_a \sim \text{Inv-}\chi^2(\nu_a, s^2_a)\), with \(\nu_a\) and \(s^2_a\) being values
+fixed or tuned by the user. We also assume that \(\beta_j \sim\mathcal{N}(0, \sigma^2_b)\), again with \(\sigma^2_b\) being a tuning hyperparameter input by the user. We want to write down the joint distribution of all the unknown parameters, the latent variables \(\mathbf Z_j\), and the observed ranking lists \(\tau_j\) in the model.</p>
+
+<p>We can start by drawing the full data model in graphical representation to clearly see any conditional independence structures that may be useful in the data. We have,</p>
+
+<div style="text-align: center;">
+    <img src="/al-folio/assets/img/projects/project1/graphical_model.png" style="width:50%; display: block; margin: auto;" alt="Latent Regression Model">
+    <br>
+    <figcaption>Latent Regression Model</figcaption>
+    <br>
+</div>
+
+<p>Using this, we can write down the joint distribution of all the unknown parameters. We have,</p>
+
+\[\begin{aligned}
+p(\boldsymbol\tau, \mathbb Z, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b,\mathbf X) &amp;= p(\boldsymbol\tau|\mathbb Z, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a, \nu_a, s^2_a, \sigma^2_b, \mathbf X) \;p(\mathbb{Z}, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b, \mathbf X) \\ &amp;= p(\boldsymbol\tau|\mathbb Z) \;p(\mathbb{Z}| \boldsymbol\beta,\boldsymbol\alpha, \mathbf X) \; p(\boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b, \mathbf X)\\ &amp;= p(\boldsymbol\tau|\mathbb Z) \;p(\mathbb{Z}| \boldsymbol\beta,\boldsymbol\alpha, \mathbf X) \; p(\boldsymbol\alpha|\sigma^2_a) p(\boldsymbol\beta,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b) \\ &amp;= p(\boldsymbol\tau|\mathbb Z) \;p(\mathbb{Z}| \boldsymbol\beta,\boldsymbol\alpha, \mathbf X) \; p(\boldsymbol\alpha|\sigma^2_a) p(\sigma^2_a|\nu_a, s^2_a)\;p(\boldsymbol\beta| \sigma^2_b)
+\end{aligned}\]
+
+<p>In the expression below, we have the distribution of each term. First, note that for \(p(\boldsymbol\tau\\|\mathbb Z)\), given \(\mathbb Z\), \(\tau_j\) is simply the rank (deterministic) function. We can thus represent this probability distribution as a function of indicators,</p>
+
+\[p(\boldsymbol\tau|\mathbb Z) = \prod_{j=1}^M p(\tau_j |\mathbf Z_j) = \prod_{j=1}^M\prod_{i_1 = 1}^N \prod_{i_2 = 1}^N \left(\mathbb I_{\left\{\tau_j(i_1) &lt; \tau_j(i_2)\right\}}\right)^{\mathbb I_{\{i_1 \succ i_2\}}}\]
+
+<p>For the second factor \(p(\mathbb{Z}\\| \boldsymbol\beta,\boldsymbol\alpha, \mathbf X)\), first note that the \(\mathbf Z_i\) are independent across players since the \(\alpha_i\) are drawn iid. So we have,</p>
+
+\[p(\mathbb{Z}| \boldsymbol\beta,\boldsymbol\alpha, \mathbf X) = \prod_{i=1}^N p(\mathbf Z_i|\boldsymbol\beta, \alpha_i, \mathbf x_i) = \prod_{i=1}^N \prod_{j=1}^M \mathcal{N}(Z_{ij}; \alpha_i + \mathbf x_i^\top\boldsymbol\beta, 1)\]
+
+<p>Note that combined with the first factor, we note that we have a Truncated Normal distribution for each \(Z_{ij}\), where each \(Z_{ij}\) is Normally distributed with mean \(\alpha_i + \mathbf x_i^\top\boldsymbol\beta\) and variance 1, but with upper and lower bounds given by the \(Z_{kj}\) with one lower and one higher rank, respectively.</p>
+
+<p>For the remaining factors in the joint distribution, we have \(p(\boldsymbol\alpha) = \prod_{i=1}^N \mathcal{N}(\alpha_i; 0, \sigma^2_a)\), as well as \(p(\sigma^2_a\\|\nu_a, s^2_a) = \text{Inv-}\chi^2(\nu_a, s^2_a)\) and \(p(\boldsymbol\beta\\|\sigma^2_b) = \prod_{k=1}^p\mathcal{N}(\beta_k; 0, \sigma^2_b)\). So, our full data joint can be written together as,</p>
+
+\[\begin{aligned}
+p(\boldsymbol\tau, \mathbb Z, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b,\mathbf X) &amp;= \prod_{j=1}^M\left[\left\{\prod_{i_1 = 1}^N \prod_{i_2 = 1}^N \left(\mathbb I_{\left\{\tau_j(i_1) &lt; \tau_j(i_2)\right\}}\right)^{\mathbb I_{\{i_1 \succ i_2\}}}\right\} \; \prod_{i=1}^N  \mathcal{N}(Z_{ij}; \alpha_i + \mathbf x_i^\top\boldsymbol\beta, 1) \right] \\ &amp;\qquad\times\text{Inv-}\chi^2(\nu_a, s^2_a) \left[\prod_{i=1}^N \mathcal{N}(\alpha_i; 0, \sigma^2_a)\right]\left[\prod_{k=1}^p\mathcal{N}(\beta_k; 0, \sigma^2_b)\right]
+\end{aligned}\]
+
+<h2 id="part-3">Part 3</h2>
+
+<p><strong><em>Explain in detail how the joint distribution obtained above takes care of missing ranking information.</em></strong></p>
+
+<p>In the joint distribution above, we importantly include the latent variables \(\mathbf Z_j\), which incorporate the evaluation score for ranker \(j\) across all the \(N\) entities/players. In the joint above, we have the condition that \(\tau_j(i_1)&lt;\tau_j(i_2)\iff i_1\succ i_2\) by raising the two indicator functions to each other. If the ranking information for a given player is not available by one of the rankers, ranking condition on \(\tau\) may still hold (thereby not “zeroing out” the joint), and we can then estimating the latent \(Z_{ij}\) for the missing player, thereby allowing us to add or impute their rank for ranker \(j\). For this missing player, as discussed in part 2, \(Z_{ij}\) will in fact be a Truncated Normal whose upper bound is the player ranked directly above and whose lower bound in the player ranked directly under. Note that this \(Z_{ij}\) can be estimated for a missing \(ij\)th ranking since we assume that heterogeneity among rankers for the \(i\)th player, namely \(\mathbf Z_i\), is simply a result of unit variance on \(\boldsymbol\epsilon_i\).</p>
+
+<h2 id="part-4">Part 4</h2>
+
+<p>Under the same prior assumptions as in Part 2, we can consider a data augmentation-based strategy and derive all conditional distributions necessary for implementing a Gibbs sampling algorithm to sample from the joint posterior distribution of all the unknown parameters and the latent variables \(\mathbf Z_j\). We will take advantage of the avrious conditional independence properties, illustrated by the graphical model (d-separation/blocking rules). First consider the full conditional distribution for \(\sigma_a^2\). We have,</p>
+
+\[\begin{aligned}
+p(\sigma^2_a| \boldsymbol\beta, \boldsymbol\alpha, \boldsymbol\tau, \mathbb Z, \sigma^2_b, \nu_a, s^2_a, \mathbf X) &amp;= p(\sigma^2_a| \boldsymbol\alpha, \nu_a, s^2_a) \\ &amp;= \frac{p(\boldsymbol\alpha|\sigma^2_a, \nu_a, s^2_a)\;p(\sigma^2_a| \nu_a, s^2_a)}{p(\boldsymbol\alpha| \nu_a, s^2_a)} \\ &amp;\propto \underbrace{p(\boldsymbol\alpha|\sigma^2_a, \nu_a, s^2_a)}_{\mathcal{N}(0, \sigma_a^2)}\;\underbrace{p(\sigma^2_a| \nu_a, s^2_a)}_{\text{Inv-}\chi^2(\nu_a, s_a^2)}
+\end{aligned}\]
+
+<p>We can use the well-known Normal-Inv-\(\chi^2\) conjugacy (see Section 2.6 in BDA) to see that</p>
+
+\[\sigma^2_a| \boldsymbol\alpha, \nu_a, s^2_a\sim\text{Inv-}\chi^2\left(\nu_a+N, \frac{\nu_as_a^2 + \sum_{i=1}^N \alpha_i^2}{\nu_a + N}\right)\]
+
+<p>Now, consider the full conditional distribution for \(\boldsymbol\alpha\). We have,</p>
+
+\[p(\boldsymbol\alpha| \boldsymbol\beta, \sigma^2_a, \boldsymbol\tau, \mathbb Z, \sigma^2_b, \nu_a, s^2_a, \mathbf X) = p(\boldsymbol\alpha| \boldsymbol\beta, \sigma^2_a, \mathbb Z, \mathbf X) \propto p(\mathbb{Z}|\boldsymbol\beta,\mathbf X,\boldsymbol\alpha) \;p(\boldsymbol\alpha| \sigma^2_a)\]
+
+<p>We can simplify this conditional by taking advantage of the fact that the random effects are drawn iid from the same distribution, thereby allowing us to update each of the \(N\) components of \(\boldsymbol\alpha\) independently. Namely, we can evaluate \(p(\mathbf{Z}_i \\| \boldsymbol\beta, \mathbf X, \alpha_i)\) by considering this as \(M\) draws from the \(\mathcal{N}(\alpha_i + \mathbf x_i^\top \boldsymbol\beta,1)\) distribution, corresponding to the \(M\) rankings:</p>
+
+\[p(\mathbb{Z}|\boldsymbol\beta,\mathbf X,\boldsymbol\alpha) \;p(\boldsymbol\alpha| \sigma^2_a) = \prod_{i=1}^N \underbrace{p(\mathbf{Z}_i|\boldsymbol\beta, \mathbf x_i, \alpha_i)}_{\mathcal{N}(\alpha_i + \mathbf x_i^\top \boldsymbol\beta,1)} \; \prod_{i=1}^N \underbrace{p(\alpha_i| \sigma^2_a)}_{\mathcal{N}(0, \sigma^2_a)}\]
+
+<p>However, we can also think of the \(\mathbb{Z}\) as \(M\) draws from an \(N\)-dimensional Multivariate Normal distribution with mean vector \(\boldsymbol\alpha + \mathbf X\boldsymbol\beta\) and the following covariance matrix,</p>
+
+\[\begin{aligned}
+\text{Cov}(\mathbf Z_j) &amp;= \text{Cov}(\boldsymbol\alpha) + \text{Cov}(\mathbf X \boldsymbol\beta) + \text{Cov}(\boldsymbol\epsilon_j) \\ &amp;= \sigma^2_a\mathbf I_N + \sigma^2_b\mathbf X^\top \mathbf X + \mathbf I_N
+\end{aligned}\]
+
+<p>Define \(\boldsymbol\Sigma := \text{Cov}(\mathbf Z_j) = \sigma^2_b\mathbf X^\top \mathbf X + (\sigma^2_a + 1)\mathbf I_N\). Likewise, since the \(\alpha_i\) are iid, we have, \(\boldsymbol\alpha\\|\sigma^2_a \sim \mathcal{N}(\mathbf 0, \sigma^2_a\mathbf I_N)\). By the multivariate Normal-Normal conjugacy result, we have,</p>
+
+\[\log p(\boldsymbol\alpha| \boldsymbol\beta, \sigma^2_a, \boldsymbol\tau, \mathbb Z, \sigma^2_b, \nu_a, s^2_a, \mathbf X) \propto \log \underbrace{p(\mathbb{Z}|\boldsymbol\beta,\mathbf X,\boldsymbol\alpha)}_{\mathcal{N}(\boldsymbol\alpha + \mathbf X\boldsymbol\beta, \boldsymbol\Sigma)} \; \log \underbrace{p(\boldsymbol\alpha| \sigma^2_a)}_{\mathcal{N}(\mathbf 0, \sigma^2_a\mathbf I_N)}\sim \mathcal{N}\left(\boldsymbol\alpha_N, \boldsymbol\Sigma_N\right)\]
+
+<p>where by completing the square, we have,</p>
+
+\[\begin{aligned}
+\boldsymbol\Sigma_N^{-1} &amp;= M\boldsymbol\Sigma^{-1} + \sigma^{-2}_a\mathbf I_N\\
+\boldsymbol\alpha_N &amp;= \boldsymbol\Sigma_N\left(M\boldsymbol\Sigma^{-1}(\bar {\mathbf Z} - \mathbf X \boldsymbol\beta)\right) \\
+\bar {\mathbf Z} &amp;= (\bar Z_1, \dots, \bar Z_N)^\top ,\quad \bar Z_j = \frac1M\sum_{i=1}^M Z_{ij}
+\end{aligned}\]
+
+<p>Now, consider the full conditional distribution for \(\boldsymbol\beta\). We have,</p>
+
+\[\begin{aligned}
+p(\boldsymbol\beta| \boldsymbol\alpha, \sigma^2_a, \boldsymbol\tau, \mathbb Z, \sigma^2_b, \nu_a, s^2_a, \mathbf X) &amp;= p(\boldsymbol\beta| \boldsymbol\alpha, \mathbb Z, \sigma^2_b, \mathbf X) \\ &amp;\propto p(\mathbb{Z}|\boldsymbol\beta,\mathbf X,\boldsymbol\alpha) \; p(\boldsymbol\beta| \sigma^2_b) \\ &amp;= p(\boldsymbol\beta| \sigma^2_b)\prod_{i=1}^N \underbrace{p(\mathbf{Z}_i|\boldsymbol\beta, \mathbf x_i, \alpha_i)}_{\mathcal{N}(\alpha_i + \mathbf x_i^\top \boldsymbol\beta,1)}
+\end{aligned}\]
+
+<p>We cannot necessarily directly apply the Normal-Normal conjugacy result here since \(\boldsymbol\beta\) is \(p\)-dimensional, while the \(\mathbf{Z}_i\) are \(M\)-dimensional vectors. In other words, each player does not only update one component independently as with \(\boldsymbol\alpha\); instead, each player or score evaluation \(Z_{ij}\) updates \(\boldsymbol\beta\) slightly. To derive this conditional distribution, we can again think of the \(\mathbb{Z}\) as \(M\) draws from an \(N\)-dimensional Multivariate Normal distribution with mean vector \(\boldsymbol\alpha + \mathbf X\boldsymbol\beta\) and covariance matrix \(\boldsymbol\Sigma\). This way, we can iteratively update the conditional distribution of \(\boldsymbol\beta\) based on each ranking; each updated posterior for \(\boldsymbol\beta\) is treated as the prior when updating based on the next ranking. Consider for generality \(\boldsymbol\beta \sim \mathcal{N}(\boldsymbol\beta_0, \Lambda_0)\). We can derive the posterior by completing the square in multiple dimensions. Again, let all \(d_i\) represent constants,</p>
+
+\[\begin{aligned}
+\log p(\boldsymbol\beta|\mathbf Z_j , \boldsymbol\alpha, \sigma^2_b, \mathbf X) &amp;= d_1 - \frac12\left[(\mathbf Z_j - \boldsymbol\alpha - \mathbf X \boldsymbol\beta)^\top\Sigma^{-1}(\mathbf Z_j - \boldsymbol\alpha - \mathbf X \boldsymbol\beta) + (\boldsymbol\beta - \boldsymbol\beta_0 )\Lambda_0^{-1}(\boldsymbol\beta - \boldsymbol\beta_0)\right] \\ &amp;= d_1 - \frac12\bigg[(\mathbf Z_j - \boldsymbol\alpha)^\top\Sigma^{-1}(\mathbf Z_j - \boldsymbol\alpha) - \boldsymbol\beta^\top (\mathbf X^\top\Sigma^{-1}\mathbf X + \Lambda_0^{-1})\boldsymbol\beta \\ &amp;\qquad\qquad\qquad- 2 \boldsymbol\beta^\top(\mathbf X^\top \Sigma^{-1}(\mathbf Z_j - \boldsymbol\alpha) + \Lambda_0^{-1}\boldsymbol\beta_0) + \boldsymbol\beta_0^\top \Lambda_0^{-1}\boldsymbol\beta_0\bigg] \\ &amp;= d_2 - \frac12\left[\boldsymbol\beta^\top (\mathbf X^\top\Sigma^{-1}\mathbf X + \Lambda_0^{-1})\boldsymbol\beta - 2 \boldsymbol\beta^\top(\mathbf X^\top \Sigma^{-1}(\mathbf Z_j - \boldsymbol\alpha) + \Lambda_0^{-1}\boldsymbol\beta_0)\right] \\ &amp;= d_2 - \frac12\left[(\boldsymbol\beta - \boldsymbol\beta_j )\Lambda_j^{-1}(\boldsymbol\beta - \boldsymbol\beta_j)\right]
+\end{aligned}\]
+
+<p>where</p>
+
+\[\begin{aligned}
+\Lambda_j^{-1} &amp;= \mathbf X^\top \Sigma^{-1}\mathbf X + \Lambda_0^{-1} \\ 
+\boldsymbol\beta_j &amp;= \Lambda_j(\mathbf X^\top \Sigma^{-1}(\mathbf Z_j - \boldsymbol\alpha) + \Lambda_0^{-1}\boldsymbol\beta_0)
+\end{aligned}\]
+
+<p>By recursively updating \(\boldsymbol\beta\) using on the \(M\) rankings, we can arrive at the full conditional distribution for \(\boldsymbol\beta\) based on \(\mathbf Z_1, \dots, \mathbf Z_j\). Note that we might consider updating our \(\boldsymbol\beta\) all at once in the conditional by using the row means of \((\mathbb Z - \boldsymbol\alpha\mathbf1^\top)\) in place of \((\mathbf Z_j - \boldsymbol\alpha)\) in the posterior covariance expression above (since means are sufficient in Normal likelihoods).</p>
+
+<p>Now, consider the full conditional distribution for \(\mathbb Z\). We have,</p>
+
+\[\begin{aligned}
+p(\mathbb Z | \boldsymbol\tau, \boldsymbol\beta, \boldsymbol\alpha, \sigma^2_a, \sigma^2_b, \mathbf X, \nu_a, s^2_a) &amp;= p(\mathbb Z| \boldsymbol \tau, \boldsymbol\alpha, \boldsymbol\beta, \mathbf X) \\ &amp;= \prod_{i=1}^N p(\mathbf Z_i |\boldsymbol\tau, \alpha_i, \boldsymbol\beta, \mathbf x_i)\\ &amp;= \prod_{i=1}^N p(Z_{i1}, \dots, Z_{iM} |\boldsymbol\tau, \alpha_i, \boldsymbol\beta, \mathbf x_i) \\ &amp;\propto \prod_{i=1}^N\prod_{j=1}^M p(Z_{ij} | Z_{i[-j]}, \boldsymbol\tau, \alpha_i, \boldsymbol\beta, \mathbf x_i) \\ &amp;= \prod_{i=1}^N\prod_{j=1}^M \mathcal{N}(Z_{ij}; \alpha_i + \mathbf x_i^\top \boldsymbol\beta, 1) \; \mathbb I_{\left\{\tau_j(i+1) &lt; \tau_j(i)&lt;\tau_j(i-1)\right\}} \\ &amp;= \prod_{i=1}^N\prod_{j=1}^M \mathcal{TN}(Z_{ij}; \alpha_i + \mathbf x_i^\top \boldsymbol\beta, 1, \text{lower= }Z_{kj}(\tau_j(i+1)), \text{upper=}Z_{k'j}(\tau_j(i-1)))
+\end{aligned}\]
+
+<p>where the notation \(Z_{kj}(\tau_j(i+1))\) refers to the latent score assigned to player \(k\) who is ranked at \(i+1\) by ranker \(j\). So, we have Truncated Normal distributions for the \(Z_{ij}\) conditional distributions.</p>
+
+<p>Finally, recognize that the full conditional distribution of \(\boldsymbol\tau\) is simply \(p(\boldsymbol\tau\\|\mathbb Z)\) as illustrated by the blocking in the graphical model. We found this distribution in Part 2, but essentially we have by construction \(\tau_j = \text{rank}(\mathbf Z_j)\), which is how we will update the \(\boldsymbol\tau\) matrix in our Gibbs sampler implementation in the next Part. Essentially, we will iteratively draw samples from each conditional distribution to approximate draws from the joint posterior distribution.</p>
+
+<h2 id="part-5">Part 5</h2>
+
+<p>Using the conditional distributions from Part 4, we can now implement a Gibbs sampler we derived above to sample from the joint posterior distribution. We first write functions to draw from each conditional distribution derived in Part 4.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Compute conditional distribution of Z: Truncated Normal</span><span class="w">
+</span><span class="n">compCond_Z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span><span class="w"> </span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">){</span><span class="w">
+    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">M</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="n">r_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tau</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w">
+        
+        </span><span class="c1"># find lower and upper bounds for TN</span><span class="w">
+        </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ifelse</span><span class="p">(</span><span class="n">r_ij</span><span class="o">==</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">yes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sort</span><span class="p">(</span><span class="n">Z</span><span class="p">[,</span><span class="n">j</span><span class="p">])[</span><span class="n">r_ij</span><span class="m">-1</span><span class="p">])</span><span class="w">
+        </span><span class="n">U</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ifelse</span><span class="p">(</span><span class="n">r_ij</span><span class="o">==</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">yes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">Inf</span><span class="p">,</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sort</span><span class="p">(</span><span class="n">Z</span><span class="p">[,</span><span class="n">j</span><span class="p">])[</span><span class="n">r_ij</span><span class="m">+1</span><span class="p">])</span><span class="w">
+        
+        </span><span class="n">Z</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">truncnorm</span><span class="o">::</span><span class="n">rtruncnorm</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">,]</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> 
+                                        </span><span class="n">sd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">U</span><span class="p">)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Compute conditional distribution of tau: rank</span><span class="w">
+</span><span class="n">compCond_tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="w"> </span><span class="nf">return</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">))</span><span class="w">
+
+</span><span class="c1"># Compute conditional distribution of beta: Multivariate Normal (recursive strategy)</span><span class="w">
+</span><span class="n">compCond_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_a</span><span class="p">){</span><span class="w">
+    </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">Z</span><span class="p">);</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">Z</span><span class="p">);</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w">
+    </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solve</span><span class="p">(</span><span class="n">sig2_b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">sig2_a</span><span class="m">+1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diag</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w">
+    </span><span class="n">Lambda0_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diag</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">/</span><span class="n">sig2_b</span><span class="w">
+    </span><span class="n">beta0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matrix</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">nrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="w"> </span><span class="n">ncol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+    
+    </span><span class="c1"># update beta components iteratively based on the Z_j</span><span class="w">
+    </span><span class="n">Lambda_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lambda0_inv</span><span class="p">;</span><span class="w"> </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta0</span><span class="w">
+    </span><span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">M</span><span class="p">){</span><span class="w">
+    </span><span class="n">Lambda_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Lambda_inv</span><span class="w">
+    </span><span class="n">Lambda</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solve</span><span class="p">(</span><span class="n">Lambda_inv</span><span class="p">)</span><span class="w">
+    </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lambda</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="p">(</span><span class="n">Z</span><span class="p">[,</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">alpha</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Lambda_inv</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="c1">#Z_cntrd = rowSums(apply(Z, 2, function(x) x - c(alpha)))</span><span class="w">
+    </span><span class="c1">#Lambda = solve(t(X) %*% Sigma_inv %*% X + Lambda0_inv)</span><span class="w">
+    </span><span class="c1">#beta = Lambda %*% (t(X) %*% Sigma_inv %*% Z_cntrd + Lambda0_inv %*% beta0)</span><span class="w">
+    
+    </span><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mvtnorm</span><span class="o">::</span><span class="n">rmvnorm</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lambda</span><span class="p">)</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">draw</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Compute conditional distribution of alpha: Normal (component by component)</span><span class="w">
+</span><span class="n">compCond_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_a</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="p">){</span><span class="w">
+    </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">Z</span><span class="p">);</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="w">
+    </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solve</span><span class="p">(</span><span class="n">sig2_b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">sig2_a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diag</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w">
+    </span><span class="n">barZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">))</span><span class="w">
+    
+    </span><span class="n">SigmaN_inv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">diag</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">/</span><span class="n">sig2_a</span><span class="w">
+    </span><span class="n">SigmaN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solve</span><span class="p">(</span><span class="n">SigmaN_inv</span><span class="p">)</span><span class="w">
+    </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SigmaN</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="p">(</span><span class="n">M</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Sigma_inv</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="p">(</span><span class="n">barZ</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">
+    
+    </span><span class="c1"># for(i in 1:N){</span><span class="w">
+    </span><span class="c1">#   mean_i = (sum(Z[i,]) - M * X[i,] %*% beta)/(1/sig2_a + M)</span><span class="w">
+    </span><span class="c1">#   var_i = 1/(1/sig2_a + M)</span><span class="w">
+    </span><span class="c1">#   alpha[i] = rnorm(1, mean_i, sqrt(var_i))</span><span class="w">
+    </span><span class="c1"># }</span><span class="w">
+    </span><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mvtnorm</span><span class="o">::</span><span class="n">rmvnorm</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SigmaN</span><span class="p">)</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">draw</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Compute conditional distribution of sig2_a: Inv-chi^2</span><span class="w">
+</span><span class="n">compCond_sig2a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="p">){</span><span class="w">
+    </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="w">
+    </span><span class="n">nu_new</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nu_a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">N</span><span class="w">
+    </span><span class="n">s2_new</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">nu_a</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">s2_a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="n">alpha</span><span class="o">^</span><span class="m">2</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">nu_a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="w">
+    </span><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s2_new</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nu_new</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rchisq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nu_new</span><span class="p">)</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="n">draw</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can now run our Gibbs sampler. Note that the features we have are on very different scales, making the estimation of the \(\boldsymbol\beta\) very unstable. To remedy this, we scale the covariates matrix before running our Gibbs sampler. We begin by initializing the values of the unknown parameters according to the full data model, to facilitate easier convergence. We also initialize \(\boldsymbol\beta\) to the OLS estimates derived by regressing \(\mathbf X\) on the mean rankings.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">run_Gibbs</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">origRank</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">220</span><span class="p">){</span><span class="w">
+    </span><span class="n">set.seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="w">
+    </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w">
+    </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">origRank</span><span class="p">)</span><span class="w">
+    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w">
+    
+    </span><span class="c1"># initialize</span><span class="w">
+    </span><span class="n">sig2_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s2_a</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nu_a</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rchisq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nu_a</span><span class="p">)</span><span class="w">
+    </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matrix</span><span class="p">(</span><span class="n">rnorm</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="n">sig2_a</span><span class="p">)),</span><span class="w"> </span><span class="n">ncol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+    </span><span class="c1"># beta = matrix(rnorm(p, 0, sqrt(sig2_b)), ncol = 1)</span><span class="w">
+    </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cbind</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">)),</span><span class="w"> </span><span class="n">X</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">as.data.frame</span><span class="w">
+    </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">lm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="m">-1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df</span><span class="p">)</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span><span class="w">
+    
+    </span><span class="n">Z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">alpha</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rnorm</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)))</span><span class="w">
+    </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">)</span><span class="w">
+    
+    </span><span class="c1"># tracking</span><span class="w">
+    </span><span class="n">track_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matrix</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">nrow</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">ncol</span><span class="o">=</span><span class="n">p</span><span class="p">);</span><span class="w"> </span><span class="n">track_beta</span><span class="p">[</span><span class="m">1</span><span class="p">,]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta</span><span class="w">
+    </span><span class="n">track_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matrix</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">nrow</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">ncol</span><span class="o">=</span><span class="n">N</span><span class="p">);</span><span class="w"> </span><span class="n">track_alpha</span><span class="p">[</span><span class="m">1</span><span class="p">,]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alpha</span><span class="w">
+    </span><span class="n">track_sig2a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numeric</span><span class="p">(</span><span class="n">nrun</span><span class="p">);</span><span class="w"> </span><span class="n">track_sig2a</span><span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sig2_a</span><span class="w">
+    </span><span class="n">track_Z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">dim</span><span class="w"> </span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">nrun</span><span class="p">));</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[,,</span><span class="m">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z</span><span class="w">
+    
+    </span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">2</span><span class="o">:</span><span class="n">nrun</span><span class="p">){</span><span class="w">
+    </span><span class="n">Z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compCond_Z</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span><span class="w"> </span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">);</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[,,</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z</span><span class="w">
+    </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compCond_tau</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="w">
+    </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compCond_alpha</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_a</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="p">);</span><span class="w"> </span><span class="n">track_alpha</span><span class="p">[</span><span class="n">i</span><span class="p">,]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alpha</span><span class="w">
+    </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compCond_beta</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_a</span><span class="p">);</span><span class="w"> </span><span class="n">track_beta</span><span class="p">[</span><span class="n">i</span><span class="p">,]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta</span><span class="w">
+    </span><span class="n">sig2_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compCond_sig2a</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="p">);</span><span class="w"> </span><span class="n">track_sig2a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sig2_a</span><span class="w">
+    </span><span class="c1">#if(i %% 100 == 0) print(i)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="n">track_beta</span><span class="p">,</span><span class="w"> </span><span class="n">track_alpha</span><span class="p">,</span><span class="w"> </span><span class="n">track_sig2a</span><span class="p">,</span><span class="w"> </span><span class="n">track_Z</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Run Gibbs sampler</span><span class="w">
+</span><span class="n">nrun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1e3</span><span class="w">
+</span><span class="n">gibbs_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_Gibbs</span><span class="p">(</span><span class="n">nrun</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="o">=</span><span class="n">scale</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="w"> </span><span class="n">origRank</span><span class="o">=</span><span class="n">t1</span><span class="p">)</span><span class="w">
+</span><span class="n">track_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">1</span><span class="p">]]</span><span class="w">
+</span><span class="n">track_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">2</span><span class="p">]]</span><span class="w">
+</span><span class="n">track_sig2a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">3</span><span class="p">]]</span><span class="w">
+</span><span class="n">track_Z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">4</span><span class="p">]]</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can now evaluate the convergence of our Gibbs sampler. We consider some traceplots for \(\boldsymbol\beta\) and \(\boldsymbol\alpha\) components as well as some elements of the \(\mathbb Z\) matrix and the \(\sigma^2_a\). We exclude the first 5 burn-in iterations.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot_trace</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">track</span><span class="p">,</span><span class="w"> </span><span class="n">ylim</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">){</span><span class="w">
+    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncol</span><span class="p">(</span><span class="n">track</span><span class="p">)</span><span class="w">
+    </span><span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RColorBrewer</span><span class="o">::</span><span class="n">brewer.pal</span><span class="p">(</span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="s1">'Paired'</span><span class="p">)</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">12</span><span class="p">)</span><span class="w"> </span><span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cols</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="p">]</span><span class="w">
+    </span><span class="k">else</span><span class="w"> </span><span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="nf">rep</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)[</span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="p">])</span><span class="w">
+    </span><span class="n">max_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">track</span><span class="p">)</span><span class="w">
+    </span><span class="n">min_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">track</span><span class="p">)</span><span class="w">
+    </span><span class="n">plot</span><span class="p">(</span><span class="n">track</span><span class="p">[,</span><span class="m">1</span><span class="p">],</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'l'</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scales</span><span class="o">::</span><span class="n">alpha</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="m">1</span><span class="p">],</span><span class="w"> </span><span class="m">0.5</span><span class="p">),</span><span class="w">
+        </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ylim</span><span class="p">,</span><span class="w"> </span><span class="n">xlab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Iteration'</span><span class="p">,</span><span class="w"> </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">label</span><span class="p">)</span><span class="w"> 
+    </span><span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">2</span><span class="o">:</span><span class="n">p</span><span class="p">){</span><span class="w">
+    </span><span class="n">points</span><span class="p">(</span><span class="n">track</span><span class="p">[,</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'l'</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scales</span><span class="o">::</span><span class="n">alpha</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="p">){</span><span class="w">
+    </span><span class="n">post_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">cumsum</span><span class="p">(</span><span class="n">track</span><span class="p">[,</span><span class="n">j</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="nf">length</span><span class="p">(</span><span class="n">track</span><span class="p">[,</span><span class="n">j</span><span class="p">]))</span><span class="w">
+    </span><span class="n">lines</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="n">scales</span><span class="o">::</span><span class="n">alpha</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="m">0.6</span><span class="p">),</span><span class="w"> </span><span class="n">lty</span><span class="o">=</span><span class="s1">'dashed'</span><span class="p">,</span><span class="w"> </span><span class="n">lwd</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="n">ni</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">track</span><span class="p">[,</span><span class="m">1</span><span class="p">])</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># evaluate convergence</span><span class="w">
+</span><span class="n">par</span><span class="p">(</span><span class="n">mfrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">))</span><span class="w">
+</span><span class="n">burnin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="w">
+</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">track_beta</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">track_beta</span><span class="p">),],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-10</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">),</span><span class="w"> 
+            </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span><span class="w">
+</span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Gibbs sampler: '</span><span class="o">*</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' Traceplot'</span><span class="p">))</span><span class="w">
+
+</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">track_alpha</span><span class="p">[</span><span class="n">burnin</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">track_alpha</span><span class="p">),],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-100</span><span class="p">,</span><span class="w"> </span><span class="m">100</span><span class="p">),</span><span class="w"> 
+            </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">alpha</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span><span class="w">
+</span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Gibbs sampler: '</span><span class="o">*</span><span class="n">alpha</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot'</span><span class="p">))</span><span class="w">
+
+</span><span class="n">plot</span><span class="p">(</span><span class="n">track_sig2a</span><span class="p">[</span><span class="n">burnin</span><span class="o">:</span><span class="n">nrun</span><span class="p">],</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'l'</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'blue'</span><span class="p">,</span><span class="w"> </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">^</span><span class="m">2</span><span class="p">),</span><span class="w"> 
+        </span><span class="n">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">^</span><span class="m">2</span><span class="o">*</span><span class="s1">' Traceplot'</span><span class="p">))</span><span class="w">
+</span><span class="n">post_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">cumsum</span><span class="p">(</span><span class="n">track_sig2a</span><span class="p">[</span><span class="n">burnin</span><span class="o">:</span><span class="n">nrun</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="nf">length</span><span class="p">(</span><span class="n">track_sig2a</span><span class="p">[</span><span class="n">burnin</span><span class="o">:</span><span class="n">nrun</span><span class="p">]))</span><span class="w">
+</span><span class="n">lines</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="n">scales</span><span class="o">::</span><span class="n">alpha</span><span class="p">(</span><span class="s1">'black'</span><span class="p">,</span><span class="m">0.6</span><span class="p">),</span><span class="w"> </span><span class="n">lty</span><span class="o">=</span><span class="s1">'dashed'</span><span class="p">,</span><span class="w"> </span><span class="n">lwd</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># consider convergence of 8 elements of Z matrix across iterations</span><span class="w">
+</span><span class="n">rand_Z_elements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">track_Z</span><span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">4</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">2</span><span class="p">,</span><span class="m">10</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">11</span><span class="p">,</span><span class="m">2</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">21</span><span class="p">,</span><span class="m">3</span><span class="p">,],</span><span class="w">
+                                </span><span class="n">track_Z</span><span class="p">[</span><span class="m">12</span><span class="p">,</span><span class="m">11</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">2</span><span class="p">,</span><span class="m">9</span><span class="p">,],</span><span class="w"> </span><span class="n">track_Z</span><span class="p">[</span><span class="m">3</span><span class="p">,</span><span class="m">10</span><span class="p">,])</span><span class="w">
+</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">rand_Z_elements</span><span class="p">[</span><span class="n">burnin</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">rand_Z_elements</span><span class="p">),],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-60</span><span class="p">,</span><span class="w"> </span><span class="m">40</span><span class="p">),</span><span class="w"> 
+            </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">ij</span><span class="p">]))</span><span class="w">
+</span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot (randomly selected elements)'</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-5-1.png" style="width:100%; display: block; margin: auto;"></p>
+
+<p>We see that our Gibbs sampler converges fairly fast and well, according to the traceplots above (we only use the first 5 iterations as burn-in); these traceplots reveal no signs of the chain being necessarily stuck anywhere at any point. Note that the \(\boldsymbol\beta\) components converge reasonably well, perhaps due to the initialization to reasonable OLS estimates. Also note that we are implicitly also modeling shrinkage through the prior on \(\beta_j\), assumed to be centered at 0, and this (along with the fact that our features are scaled) explains why the \(\beta_j\) components are centered about 0.</p>
+
+<p>For robustness, we can also plot Autocorrelation function (ACF) plots for the \(\beta_k\) and \(\alpha_i\) components. ACF plots display the autocorrelation between samples in our chain as a function of the lag (number of steps separating the samples). A well-mixed chain will have low autocorrelations for small lags, indicating that the samples are relatively independent and the chain is exploring the parameter space efficiently. We select 5 components from each to evaluate at random.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">par</span><span class="p">(</span><span class="n">mfrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">5</span><span class="p">,</span><span class="m">2</span><span class="p">),</span><span class="w"> </span><span class="n">mar</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">,</span><span class="m">2</span><span class="p">))</span><span class="w"> 
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">220</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">5</span><span class="p">){</span><span class="w">
+    </span><span class="n">kcomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+    </span><span class="n">icomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+    </span><span class="n">acf</span><span class="p">(</span><span class="n">track_beta</span><span class="p">[,</span><span class="n">kcomp</span><span class="p">],</span><span class="w"> </span><span class="n">lag.max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="n">paste0</span><span class="p">(</span><span class="s1">'Gibbs: beta_'</span><span class="p">,</span><span class="n">kcomp</span><span class="p">))</span><span class="w">
+    </span><span class="n">acf</span><span class="p">(</span><span class="n">track_alpha</span><span class="p">[,</span><span class="n">icomp</span><span class="p">],</span><span class="w"> </span><span class="n">lag.max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="n">paste0</span><span class="p">(</span><span class="s1">'Gibbs: alpha_'</span><span class="p">,</span><span class="n">icomp</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-6-1.png" style="display: block; margin: auto;"></p>
+
+<p>The ACF plots above display proper mixing in the chain as the
+autocorrelation drops rapidly toward 0 when lag increases, suggesting
+efficient posterior estimates. Further, the ACF plots are similar across
+the chains, suggesting that the mixing and convergence properties are
+consistent.</p>
+
+<h2 id="part-6">Part 6</h2>
+
+<p>We want to summarize our posterior inference results. We can first provide posterior summaries of each \(\beta_k\) (for the $k$-th covariate). Again, note that we <strong>scaled</strong> the feature matrix, which will affect our values for \(\beta_k\); however, this simply means we can make standardized predictions using our model (or unstandardize \(\mathbf X\) by multiplying by variance and adding mean back). For stability, we consider the last half of the chain when making posterior summaries.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">track_beta</span><span class="p">[</span><span class="m">500</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">)</span><span class="w">
+</span><span class="n">beta_quantiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">track_beta</span><span class="p">[</span><span class="m">500</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.025</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.975</span><span class="p">)))</span><span class="w">
+</span><span class="n">beta_post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">rbind</span><span class="p">(</span><span class="n">Mean</span><span class="p">,</span><span class="w"> </span><span class="n">beta_quantiles</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">as.data.frame</span><span class="w">
+</span><span class="n">colnames</span><span class="p">(</span><span class="n">beta_post</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s1">'mean'</span><span class="p">,</span><span class="w"> </span><span class="s1">'p025'</span><span class="p">,</span><span class="w"> </span><span class="s1">'median'</span><span class="p">,</span><span class="w"> </span><span class="s1">'p975'</span><span class="p">)</span><span class="w">
+</span><span class="n">beta_post</span><span class="o">$</span><span class="n">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">colnames</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w">
+
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta_post</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stat</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'blue'</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta_post</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stat</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">median</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'green'</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_errorbar</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta_post</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stat</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">ymin</span><span class="o">=</span><span class="n">p025</span><span class="p">,</span><span class="w"> </span><span class="n">ymax</span><span class="o">=</span><span class="n">p975</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_hline</span><span class="p">(</span><span class="n">yintercept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'dashed'</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'gray70'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">xlab</span><span class="p">(</span><span class="s1">'Player statistic'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ylab</span><span class="p">(</span><span class="s1">'Posterior Estimate'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-7-1.png" style="width: 75%; display: block; margin: auto;"></p>
+
+<p>Our results about the \(\beta_k\) components are very reassuring. The 95% posterior intervals and directions make intuitive sense. For example, the estimate for the touchdown percentage of a player is significantly less than 0, which makes sense as touchdown percentage would generally increase the latent score of a player, thereby decreasing their rank.</p>
+
+<p>Under this model, we also have that the true score for player \(i\) is simply \(\mu_i = \alpha_i + \mathbf x_i^\top \boldsymbol\beta\). We can find the posterior mean of each player’s score, namely \(\hat\mu_i = \mathbb E[\alpha_i + \mathbf x_i^\top \boldsymbol\beta\\|\boldsymbol\tau]\). We try this at different values of \(\sigma^2_b\) to evaluate how our results are affected. Below, we consider the traceplot of this posterior mean for each \(\sigma^2_b \in \{0.2, 2, 10\}\) to evaluate the stability of our estimates, and we report the posterior means for each player’s score. Note that ranking based on this score is invariant of score scaling.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sig2_bs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">)</span><span class="w">
+</span><span class="n">postMeans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">()</span><span class="w">
+
+</span><span class="n">par</span><span class="p">(</span><span class="n">mfrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">3</span><span class="p">,</span><span class="m">1</span><span class="p">))</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">sig2_b</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">sig2_bs</span><span class="p">){</span><span class="w">
+    </span><span class="n">gibbs_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_Gibbs</span><span class="p">(</span><span class="n">nrun</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="o">=</span><span class="n">sig2_b</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="o">=</span><span class="n">scale</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="w"> </span><span class="n">origRank</span><span class="o">=</span><span class="n">t1</span><span class="p">)</span><span class="w">
+    </span><span class="n">track_mu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">t</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">2</span><span class="p">]])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">1</span><span class="p">]]))</span><span class="w">
+    </span><span class="n">postMeans</span><span class="p">[[</span><span class="nf">as.character</span><span class="p">(</span><span class="n">sig2_b</span><span class="p">)]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">track_mu</span><span class="p">[</span><span class="m">500</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">))</span><span class="w">
+    
+    </span><span class="n">plot_trace</span><span class="p">(</span><span class="n">track_mu</span><span class="p">[</span><span class="m">10</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-300</span><span class="p">,</span><span class="w"> </span><span class="m">300</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">mu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot'</span><span class="p">))</span><span class="w">
+    </span><span class="n">title</span><span class="p">(</span><span class="n">bquote</span><span class="p">(</span><span class="n">paste</span><span class="p">(</span><span class="n">mu</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="s1">' Traceplot: '</span><span class="p">,</span><span class="w"> </span><span class="n">sigma</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">^</span><span class="m">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">.</span><span class="p">(</span><span class="n">sig2_b</span><span class="p">))))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-8-1.png" style="display: block; margin: auto;"></p>
+
+<p>Below, we have the posterior means for each player’s scores, standardized within run, since ranking is invariant of score ranking.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scores_sig2_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matrix</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">nrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">ncol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span><span class="p">)</span><span class="w">
+</span><span class="n">colnames</span><span class="p">(</span><span class="n">scores_sig2_b</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paste0</span><span class="p">(</span><span class="s1">'sig2b='</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_bs</span><span class="p">)</span><span class="w">
+</span><span class="n">rownames</span><span class="p">(</span><span class="n">scores_sig2_b</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span><span class="w">
+
+</span><span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="nf">length</span><span class="p">(</span><span class="n">sig2_bs</span><span class="p">)){</span><span class="w">
+    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">postMeans</span><span class="p">[[</span><span class="nf">as.character</span><span class="p">(</span><span class="n">sig2_bs</span><span class="p">[</span><span class="n">j</span><span class="p">])]]</span><span class="w">
+    </span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="n">scores_sig2_b</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">res</span><span class="p">[</span><span class="n">rownames</span><span class="p">(</span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">t1</span><span class="p">)[</span><span class="n">i</span><span class="p">],</span><span class="m">1</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">scores_sig2_b</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##                     sig2b=0.2     sig2b=2    sig2b=10
+## Andrew Luck        1.89708772  2.01058105  1.98251462
+## Aaron Rodgers      0.56490874  0.51471910  0.55479801
+## Peyton Manning     1.73736171  1.78489779  1.77879573
+## Tom Brady          1.65630310  1.74072182  1.76683076
+## Tony Romo          1.01231107  0.97952461  1.04549961
+## Drew Brees         0.37691179  0.36625193  0.38027823
+## Ben Roethlisberg   0.83564834  0.76861660  0.81145085
+## Ryan Tannehill     0.36673456  0.30498502  0.29618567
+## Matthew Stafford   0.31665262  0.29388618  0.28134439
+## Mark Sanchez       0.14644438  0.15259991  0.09271523
+## Russell Wilson    -0.65861862 -0.70439581 -0.76113658
+## Philip Rivers      0.03483141  0.01518099 -0.03470465
+## Cam Newton        -0.41038472 -0.46796831 -0.52909854
+## Eli Manning       -0.99173003 -0.90467347 -0.90922537
+## Matt Ryan         -0.74266520 -0.69863887 -0.70611211
+## Andy Dalton       -0.82945836 -0.85680412 -0.86903818
+## Alex Smith        -0.75495806 -0.77510834 -0.77429229
+## Colin Kaepernick  -0.81721675 -0.83430930 -0.86243836
+## Joe Flacco         0.33782443  0.31985761  0.28309821
+## Jay Culter         0.79739071  0.70301087  0.72569667
+## Josh McCown       -0.80295215 -0.84824725 -0.82180304
+## Drew Stanton      -1.70759987 -1.68088790 -1.60454467
+## Teddy Bridgewater -1.06465500 -1.01853670 -1.03402365
+## Brian Hoyer       -1.30017181 -1.16526341 -1.09279054
+</code></pre></div></div>
+
+<p>We see that as \(\sigma^2_b\) increases, the variance among the \(\mu_i\) scores increase greatly as seen in the traceplots; however, the ranking of the players does not necessarily change too much. This makes sense, again, given the invariance of rank to score scaling.</p>
+
+<p>We can also report posterior probabilities for Tom Brady’s true score \(\mu_4\) to be better (namely lower, thereby leading to a better “lower” rank) than each of the proceeding quarterbacks (e.g. Manning, Rodgers, and Luck). We assume \(\sigma^2_b = 0.5\) again.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gibbs_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_Gibbs</span><span class="p">(</span><span class="n">nrun</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span><span class="w"> </span><span class="n">nu_a</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">s2_a</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">sig2_b</span><span class="o">=</span><span class="n">sig2_b</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="o">=</span><span class="n">scale</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="w"> </span><span class="n">origRank</span><span class="o">=</span><span class="n">t1</span><span class="p">)</span><span class="w">
+</span><span class="n">track_mu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">2</span><span class="p">]])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">gibbs_res</span><span class="p">[[</span><span class="m">1</span><span class="p">]])</span><span class="w"> </span><span class="p">)</span><span class="w">
+</span><span class="n">probs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">sapply</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> 
+    </span><span class="n">apply</span><span class="p">(</span><span class="n">track_mu</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="m">4</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])),</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">)</span><span class="w">
+</span><span class="n">cat</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="n">colnames</span><span class="p">(</span><span class="n">track_mu</span><span class="p">)[</span><span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">],</span><span class="w"> </span><span class="s2">": "</span><span class="p">,</span><span class="w"> </span><span class="n">probs</span><span class="p">,</span><span class="w"> </span><span class="s1">'\n'</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Andrew Luck: 0.644
+## Aaron Rodgers: 0.021
+## Peyton Manning: 0.559
+</code></pre></div></div>
+
+<p>These probabilities make great sense given the rankings in Table 1 (for example, Brady is almost consistently ranked lower Rodgers); however, we see the covariate adjustment in play here as well. For example, even though Andrew luck receives almost consistently better ranks than Brady, based on our posterior scores, Brady has a 64.4% probability of still being ranked better. We can provide an overall approximate 90% credible interval for each entity’s aggregated ranking, based on the estimated scores \(\hat\mu_i\).</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">rank_post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">track_mu</span><span class="p">[</span><span class="m">10</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">rank</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> 
+                    </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.95</span><span class="p">))))</span><span class="w">
+</span><span class="n">colnames</span><span class="p">(</span><span class="n">rank_post</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s1">'p5'</span><span class="p">,</span><span class="w"> </span><span class="s1">'median'</span><span class="p">,</span><span class="w"> </span><span class="s1">'p95'</span><span class="p">)</span><span class="w">
+</span><span class="n">rank_post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">rank_post</span><span class="p">)</span><span class="w">
+</span><span class="n">rank_post</span><span class="o">$</span><span class="n">player</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">rank_post</span><span class="p">)</span><span class="w">
+</span><span class="n">rank_post</span><span class="o">$</span><span class="n">player</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">rank_post</span><span class="o">$</span><span class="n">player</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rank_post</span><span class="o">$</span><span class="n">player</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">rank_post</span><span class="o">$</span><span class="n">median</span><span class="p">)])</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_errorbar</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rank_post</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">player</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">ymin</span><span class="o">=</span><span class="n">p5</span><span class="p">,</span><span class="w"> </span><span class="n">ymax</span><span class="o">=</span><span class="n">p95</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.15</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rank_post</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">player</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">median</span><span class="p">),</span><span class="w"> 
+                </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'red'</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">xlab</span><span class="p">(</span><span class="s1">'Player'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ylab</span><span class="p">(</span><span class="s1">'Posterior Rank'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+    </span><span class="n">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">45</span><span class="p">,</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">vjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-11-1.png" style="display: block; margin: auto;"></p>
+
+<p>These rankings seem pretty good, relative to the rankings in Table 1!</p>
+
+<h2 id="part-7">Part 7</h2>
+
+<p><strong><em>Comment on how well the current model fits the data. In particular,
+is there any evidence that some rankers may not be as good as others and
+may use the covariates differently? Report any model weaknesses you can
+find and make suggestions on how you might revise your model.</em></strong></p>
+
+<p>The model here fits the data reasonably well, as the rankings do in fact
+match those in Table 1, even while accounting for covariates. To assess
+whether there is any evidence that some rankers may not be as good as
+others and may use the covariates differently, we can consider the
+traceplots of scores for two different rankers, ranker 1 and ranker 2.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">par</span><span class="p">(</span><span class="n">mfrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">))</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">220</span><span class="p">)</span><span class="w">
+</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">track_Z</span><span class="p">[,</span><span class="m">1</span><span class="p">,])[</span><span class="m">10</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-60</span><span class="p">,</span><span class="w"> </span><span class="m">40</span><span class="p">),</span><span class="w"> 
+            </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i1</span><span class="p">]))</span><span class="w">
+</span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot (ranker 1)'</span><span class="p">))</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">220</span><span class="p">)</span><span class="w">
+</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">track_Z</span><span class="p">[,</span><span class="m">10</span><span class="p">,])[</span><span class="m">10</span><span class="o">:</span><span class="n">nrun</span><span class="p">,],</span><span class="w"> </span><span class="n">ylim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-60</span><span class="p">,</span><span class="w"> </span><span class="m">40</span><span class="p">),</span><span class="w"> 
+            </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">ij</span><span class="p">]))</span><span class="w">
+</span><span class="n">title</span><span class="p">(</span><span class="nf">expression</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span><span class="o">*</span><span class="s1">' Traceplot (ranker 2)'</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/al-folio/assets/img/projects/project1/unnamed-chunk-12-1.png" style="width: 100%; display: block; margin: auto;"></p>
+
+<p>We do see some discrepancy between these two rankers, suggesting that
+rankers and in fact using covariates differently to construct their
+scores, since the player random effect takes on the same value across
+the rankers. Further, it makes sense that we have ranker discrepancy
+since we adopt a hierarchical approach to this problem, and this is
+clearly illustrated by the graphical model from Part 2.</p>
+
+<p>We can propose a few extensions or suggestions to revise this model. We
+can potentially add interactions terms between rankers and covariates in
+the model; this will allow the model to capture different relationships
+between the covariates and the response for different rankers, thereby
+accounting for potentially bad rankers. We can also explore how rankers
+may be using covariates differently by using our hierarchical modeling
+approach. Further, we can perform something similar to a “subgroup
+analysis”, where, if we know (a priori) that there are different groups
+of rankers (perhaps some are biased toward different conferences, for
+example), we perform separate analyses for each group to investigate
+potential differences in the relationships between the covariates and
+the response.</p>
+
+<p>Finally, we adopted a Normal prior on the feature coefficients \(\boldsymbol\beta\),
+which is equivalent to Ridge regularization. Perhaps we can explore
+other shrinkage mechanisms, such as LASSO for example, which has the
+advantage of typically shrinking some coefficients to exactly 0. If we
+believe that some covariates are simply noise and not useful for
+ranking, then LASSO might be useful in that context.</p>
+
+          </article>
+
+        </div>
+
+      
+    </div>
+
+    <!-- Footer -->    <!-- <footer class="sticky-bottom mt-5">
+      <div class="container">
+        &copy; Copyright 2023 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
+
+      </div>
+    </footer> -->
+
+    <!-- JavaScripts -->
+    <!-- jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Bootsrap & MDB scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha256-fgLAgv7fyCGopR/gBNq2iW3ZKIdqIcyshnUULC4vex8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script>
+
+    <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+  <script defer src="/al-folio/assets/js/masonry.js" type="text/javascript"></script>
+    
+  <!-- Medium Zoom JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script>
+  <script defer src="/al-folio/assets/js/zoom.js"></script>
+
+  <!-- Bootstrap Table -->
+  <script defer src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
+
+  <!-- Load Common JS -->
+  <script src="/al-folio/assets/js/no_defer.js"></script>
+  <script defer src="/al-folio/assets/js/common.js"></script>
+  <script defer src="/al-folio/assets/js/copy_code.js" type="text/javascript"></script>
+
+    
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+    <!-- MathJax -->
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+    
+    
+
+<!-- Scrolling Progress Bar -->
+<script type="text/javascript">
+  /*
+   * This JavaScript code has been adapted from the article 
+   * https://css-tricks.com/reading-position-indicator/ authored by Pankaj Parashar, 
+   * published on the website https://css-tricks.com on the 7th of May, 2014.
+   * Couple of changes were made to the original code to make it compatible 
+   * with the `al-foio` theme.
+   */
+  const progressBar = $("#progress");
+  /*
+   * We set up the bar after all elements are done loading.
+   * In some cases, if the images in the page are larger than the intended
+   * size they'll have on the page, they'll be resized via CSS to accomodate
+   * the desired size. This mistake, however, breaks the computations as the
+   * scroll size is computed as soon as the elements finish loading.
+   * To account for this, a minimal delay was introduced before computing the
+   * values.
+   */
+  window.onload = function () {
+    setTimeout(progressBarSetup, 50);
+  };
+  /*
+   * We set up the bar according to the browser.
+   * If the browser supports the progress element we use that.
+   * Otherwise, we resize the bar thru CSS styling
+   */
+  function progressBarSetup() {
+    if ("max" in document.createElement("progress")) {
+      initializeProgressElement();
+      $(document).on("scroll", function() {
+        progressBar.attr({ value: getCurrentScrollPosition() });
+      });
+      $(window).on("resize", initializeProgressElement);
+    } else {
+      resizeProgressBar();
+      $(document).on("scroll", resizeProgressBar);
+      $(window).on("resize", resizeProgressBar);
+    }
+  }
+  /*
+   * The vertical scroll position is the same as the number of pixels that
+   * are hidden from view above the scrollable area. Thus, a value > 0 is
+   * how much the user has scrolled from the top
+   */
+  function getCurrentScrollPosition() {
+    return $(window).scrollTop();
+  }
+
+  function initializeProgressElement() {
+    let navbarHeight = $("#navbar").outerHeight(true);
+    $("body").css({ "padding-top": navbarHeight });
+    $("progress-container").css({ "padding-top": navbarHeight });
+    progressBar.css({ top: navbarHeight });
+    progressBar.attr({
+      max: getDistanceToScroll(),
+      value: getCurrentScrollPosition(),
+    });
+  }
+  /*
+   * The offset between the html document height and the browser viewport
+   * height will be greater than zero if vertical scroll is possible.
+   * This is the distance the user can scroll
+   */
+  function getDistanceToScroll() {
+    return $(document).height() - $(window).height();
+  }
+
+  function resizeProgressBar() {
+    progressBar.css({ width: getWidthPercentage() + "%" });
+  }
+  // The scroll ratio equals the percentage to resize the bar
+  function getWidthPercentage() {
+    return (getCurrentScrollPosition() / getDistanceToScroll()) * 100;
+  }
+</script>
+
+  </body>
+</html>
