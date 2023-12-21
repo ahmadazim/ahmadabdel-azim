@@ -1,5 +1,25 @@
 <ul class="card-text font-weight-light list-group list-group-flush">
-    {% for content in entry.contents %}
-      <li class="list-group-item">{{ content }}</li>
-    {% endfor %}
+  {% for content in entry.contents %}
+  <ul>
+  <li>
+        {% assign title_parts = content | split: ':' %}
+        {% assign has_parentheses = title_parts[0] | contains: '(' and title_parts[0] | contains: ')' %}
+        
+        {% if has_parentheses %}
+          {% assign title_parts = content | split: '(' %}
+          {% if title_parts.size > 1 %}
+            <strong>{{ title_parts[0] }}</strong> <em>({{ title_parts[1] | split: ')' | first }})</em>
+          {% else %}
+            <strong>{{ title_parts[0] | split: ':' | first}}</strong>
+          {% endif %} :
+        {% endif %}
+      
+        {% assign skills = content | split: ':' | last | split: ', ' %}
+        {% for skill in skills %}
+          {{ skill | strip }} {% if forloop.last == false %}&bull; {% endif %}
+        {% endfor %}
+      
+    </li>
+  </ul>  
+  {% endfor %}
 </ul>

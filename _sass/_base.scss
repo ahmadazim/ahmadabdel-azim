@@ -374,6 +374,35 @@ footer.sticky-bottom {
       }
     }
   }
+  
+  .timeline-date {
+    position: relative; /* For absolute positioning of the timeline-dot */
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    top: 3%; /* Aligns the dot vertically in the middle of the date badge */
+    left: calc(0% - 8px);
+    width: 15px;
+    height: 15px;
+    background-color: var(--global-theme-color);
+    border: 1.5px solid var(--global-text-color);
+    border-radius: 50%;
+    z-index: 1; /* Ensures the dot is above the line */
+  }
+  
+  .timeline-connector {
+    position: absolute;
+    top: 0%;
+    bottom: 0;
+    left: 0.35%;
+    border-left: 4px solid var(--global-theme-color);
+    z-index: 0; /* Ensures the line is behind the dot */
+  }
+  .timeline-connector.last-timeline-item {
+    height: 100%; /* This will extend the line through the entire height of the item */
+    bottom: -20px; /* Extends the line to the bottom of the item */
+  }
 }
 
 // Repositories
@@ -555,7 +584,7 @@ footer.sticky-bottom {
 
   h2 {
     margin-bottom: 1rem;
-
+    
     span {
       font-size: 1.5rem;
     }
@@ -707,8 +736,14 @@ footer.sticky-bottom {
       div.abstract.hidden {
         border: dashed 1px var(--global-bg-color);
       }
-
       div.abstract.hidden.open {
+        border-color: var(--global-text-color);
+      }
+      
+      div.description.hidden {
+        border: dashed 1px var(--global-bg-color);
+      }
+      div.description.hidden.open {
         border-color: var(--global-text-color);
       }
     }

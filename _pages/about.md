@@ -1,26 +1,24 @@
 ---
 layout: about
-title: about
+title: home
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
+subtitle: Studying <span class="font-weight-bold">statistics</span> and <span class="font-weight-bold">molecular & cellular biology</span> at Harvard 
 
 profile:
-  align: right
-  image: prof_pic.jpg
+  align: left
+  image: prof_pic.png
   image_circular: false # crops the image to make it circular
-  address: >
-    <p>555 your office number</p>
-    <p>123 your address street</p>
-    <p>Your City, State 12345</p>
+  
 
-news: true  # includes a list of news items
+news: false  # includes a list of news items
 latest_posts: true  # includes a list of the newest posts
-selected_papers: true # includes a list of papers marked as "selected={true}"
+selected_projects: true # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
+
+next_image:  <em>I develop and implement novel statistical methods to overcome challenges in genomic medicine, all while collaborating in fast-paced, impact-oriented, and innovative research environments.</em>
+
 ---
+I am driven to apply computational and statistical techniques to advance the prospect of <span class="font-weight-bold">precision medicine</span> and design <span class="font-weight-bold">patient-tailored therapies</span> for the treatment of human diseases. Toward that goal, I have worked as a researcher and intern at several academic labs, companies, and pharmaceutical startups. At Harvard, I am currently pursuing an <span class="font-weight-bold">A.B./A.M. concurrent degree</span> in statistics and molecular & cellular biology. 
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+This website is a collection of my <span class="font-weight-bold">[projects]({{ '/projects/' | relative_url}}{{ site.projects_nav_title }})</span> and <span class="font-weight-bold">[professional experiences]({{ '/cv/' | relative_url}}{{ site.cv_nav_title }})</span>. I also write about various topics in statistics and deep learning <span class="font-weight-bold">[here]({{ '/blog/' | relative_url}}{{ site.blog_nav_title }})</span>!
 
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
-
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](http://fortawesome.github.io/Font-Awesome/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.

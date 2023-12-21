@@ -1,11 +1,11 @@
 ---
 layout: page
-title: projects
+title: Projects
 permalink: /projects/
-description: A growing collection of your cool projects.
+description: A growing collection of various projects across a variety of disciplines, from bioinformatics to economics.
 nav: true
 nav_order: 2
-display_categories: [work, fun]
+display_categories: [research, other]
 horizontal: false
 ---
 

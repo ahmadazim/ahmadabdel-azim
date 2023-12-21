@@ -8,7 +8,7 @@
           <a class="navbar-brand title font-weight-lighter" href="{{ site.baseurl }}/">
             {%- if site.title == "blank" -%}
               {%- if site.first_name -%}
-                <span class="font-weight-bold">{{- site.first_name -}}&nbsp;</span>
+                <span class="font-weight-bold">{{- site.first_name -}}&nbsp;
               {%- endif -%}
               {%- if site.middle_name -%}
                 {{- site.middle_name -}}&nbsp;
@@ -18,10 +18,10 @@
               {%- endif -%}
             {%- else -%}
               {{- site.title -}}
-            {%- endif -%}
+            {%- endif -%}</span>
           </a>
-          {%- elsif site.enable_navbar_social -%}
           <!-- Social Icons -->
+          {%- elsif site.enable_navbar_social -%}
           <div class="navbar-brand social">
             {% include social.html %}
           </div>
@@ -44,23 +44,24 @@
               {% endfor %}
 
               <!-- About -->
-              <li class="nav-item {% if page.permalink == '/' %}active{% endif %}">
+              <!-- <li class="nav-item {% if page.permalink == '/' %}active{% endif %}">
                 <a class="nav-link" href="{{ '/' | relative_url }}">{{ about_title }}
                   {%- if page.permalink == '/' -%}
                   <span class="sr-only">(current)</span>
                   {%- endif -%}
                 </a>
-              </li>
-              {% if site.blog_nav_title %}
+              </li> 
+              {% if site.blog_nav_title %} -->
+              
               <!-- Blog -->
-              <li class="nav-item {% if page.url contains 'blog' %}active{% endif %}">
+              <!-- <li class="nav-item {% if page.url contains 'blog' %}active{% endif %}">
                 <a class="nav-link" href="{{ '/blog/' | relative_url }}">{{ site.blog_nav_title }}
                   {%- if page.url contains 'blog' -%}
                   <span class="sr-only">(current)</span>
                   {%- endif -%}
                 </a>
               </li>
-              {%- endif %}
+              {%- endif %} -->
 
               <!-- Other pages -->
               {%- assign sorted_pages = site.pages | sort: "nav_order" -%}
@@ -97,12 +98,12 @@
               {%- if site.enable_darkmode %}
 
               <!-- Toogle theme mode -->
-              <li class="toggle-container">
+              <!-- <li class="toggle-container">
                 <button id="light-toggle" title="Change theme">
                   <i class="fas fa-moon"></i>
                   <i class="fas fa-sun"></i>
                 </button>
-              </li>
+              </li> -->
               {%- endif %}
             </ul>
           </div>

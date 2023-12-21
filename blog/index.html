@@ -21,9 +21,17 @@ pagination:
   {% if blog_name_size > 0 or blog_description_size > 0 %}
   <div class="header-bar">
     <h1>{{ site.blog_name }}</h1>
-    <h2>{{ site.blog_description }}</h2>
+    <h3 style="font-style: italic;">{{ site.blog_description }}</h3>
+    <div style="text-align: left;">
+      <br>
+      As I continue learning new techniques and concepts, I like to use this space as a <em>vade mecum</em> of sorts. From statistical concepts relevant to my research or coursework to interesting conversations with people in my everyday life, I share both technical summaries and personal thoughts in brief blog posts. This not only allows me to continue exploring new topics, but it also provides snapshots of my learning at various points of inpiration in my life. 
+      <br><br>
+      You'll find that I am particularly interested in statistical programming, genetics, deep learning, and bioethics. If you find something engaging, reach out!
+    </div>
   </div>
   {% endif %}
+
+  
 
   {% if site.display_tags %}
   <div class="tag-list">
