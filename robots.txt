@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://ahmadabdel-azim.comhttps://ahmadabdel-azim.com//sitemap.xml
+Sitemap: https://ahmadabdel-azim.com/sitemap.xml
