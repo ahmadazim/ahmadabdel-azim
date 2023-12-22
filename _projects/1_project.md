@@ -61,7 +61,7 @@ We can start by drawing the full data model in graphical representation to clear
 
 
 <div style="text-align: center;">
-    <img src="{{ site.baseurl }}/assets/img/projects/project1/graphical_model.png" style="width:50%; display: block; margin: auto;" alt="Latent Regression Model" />
+    <img src="assets/img/projects/project1/graphical_model.png" style="width:50%; display: block; margin: auto;" alt="Latent Regression Model" />
     <br>
     <figcaption>Latent Regression Model</figcaption>
     <br>
