@@ -13,7 +13,6 @@
     <title>Statistical Optimization Techniques | Ahmad  Abdel-Azim</title>
     <meta name="author" content="Ahmad  Abdel-Azim">
     <meta name="description" content="An overview and implementation of statistical methods used for optimization">
-    <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website">
 
 
     <!-- Bootstrap & MDB -->
@@ -31,6 +30,9 @@
     <!-- Code Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/github.css" media="" id="highlight_theme_light">
 
+    
+    <!-- Sidebar Table of Contents -->
+    <link href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" rel="stylesheet">
     
 
     <!-- Styles -->
@@ -109,7 +111,11 @@
     <!-- Content -->
     <div class="container mt-5">
       
-        <!-- _layouts/post.html -->
+        
+        <div class="row">
+          <!-- main content area -->
+          <div class="col-sm-11">
+            <!-- _layouts/post.html -->
 
 <div class="post">
 
@@ -126,10 +132,6 @@
           <a href="/blog/tag/tutorials">
           <i class="fas fa-hashtag fa-sm"></i> tutorials</a>  
           
-        ·  
-        <a href="/blog/category/sample-posts">
-          <i class="fas fa-tag fa-sm"></i> sample-posts</a>  
-          
 
     </p>
   </header>
@@ -137,200 +139,257 @@
   <article class="post-content">
     
     <div id="markdown-content">
-      <p>This is an example post with image galleries.</p>
+      <p>Central to solving many scientific and machine learning problems is optimization. Excluding a handful specifically-structured problems, we typically have no guarantee of finding global optima; instead, we settle for reasonable good local modal solutions. Thus, optimization has largely taken the form of mode finding. Further, note that typically, mode finding of some target function is equivalent to root finding for its gradient, if it exists.</p>
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
+<p><br></p>
 
-  <picture>
+<h3 id="overflow-and-underflow">Overflow and Underflow</h3>
+
+<p>Developing robust strategies to deal with underflow and overflow is often of critical importance to many optimization problems. For example, in the context of statistical inference, we may want to maximize the likelihood function to derive the maximum likelihood estimator (MLE); however, especially with larger samples sizes, directly computing the likelihood can often lead to overflow or underflow. We typically never want to multiple many probabilities or density values <em>directly</em>. Instead, we can operate on the logarithmic scale when possible. When computing the summation or product of many small or large numbers, it is better to do this properly on the logarithmic scale.</p>
+
+<p>Take the following problem for an example of dealing with underflow in particular. Let us say we have a potentially biased coin whose probability of showing head is \(\theta\), and <em>a priori</em> we know \(\theta\) is either 0.5 or 0.6, with equal probabilities. We toss the coin \(n=10,000\) times and observe \(x=5,510\) heads. Our goal then is to compute the posterior probability \(\Pr(\theta = 0.6 \\| n, x)\).</p>
+
+<p>We can first find a simplified expression for this posterior probability of interest using Bayes Theorem and LOTP (note, \(n\) is known, but we include it in the expression below for clarity),</p>
+
+\[\begin{aligned}
+\Pr(\theta = 0.6 | n, x) &amp;= \frac{\Pr(x|n, \theta = 0.6) \Pr(\theta = 0.6)}{\Pr(x | n)} \\&amp;=\frac{\frac12 {n\choose x}(0.6)^x (0.4)^{n-x}}{\frac12 {n \choose x}(0.6)^x (0.4)^{n-x} + \frac12 {n\choose x} (0.5)^x (0.5)^{n-x}} \\ &amp;= \frac{(0.6)^x (0.4)^{n-x}}{(0.6)^x (0.4)^{n-x} +  (0.5)^n }
+\end{aligned}\]
+
+<p>We can see from the expression above that we are in fact working with some very small probabilities; \(0.6^{5510}\) evaluates directly to 0 in R due to underflow. To avoid such underflow errors, we can instead work with log-posterior probabilities,</p>
+
+\[\begin{aligned}
+\log \Pr(\theta = 0.6 | n, x) &amp;= \log \left[(0.6)^x (0.4)^{n-x}\right] -\log \left[(0.6)^x (0.4)^{n-x} +  (0.5)^n \right] \\ &amp;= x\log 0.6 + (n-x)\log 0.4 \\ &amp;\;\quad- \left[a + \log\left(\exp\left[x\log 0.6 + (n-x)\log 0.4 - a\right]+\exp\left[n\log 0.5 - a\right] \right)\right]
+\end{aligned}\]
+
+<p>where \(a =\max\{\left(x\log 0.6 + (n-x)\log 0.4\right) , n\log0.5\}\). Note that above, we are implementing the LogSumExp function (also known as the “SoftMax trick”) to compute the log of the denominator (which is the log of summed exponentiated log terms). This is a simple idea which essentially involves subtracting the maximum, \(a\), from each exponentiated term, thereby reducing underflow errors.</p>
+
+<p>With these robust strategies defined for dealing with underflow, we can now implement our ideas below to compute the posterior probabilities of interest.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">compute_posterior</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">return_val</span><span class="o">=</span><span class="nb">F</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="o">=</span><span class="nb">T</span><span class="p">){</span><span class="w">
+  </span><span class="n">log_numer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="m">0.6</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="m">0.4</span><span class="p">)</span><span class="w">
+  </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">log_numer</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="m">0.5</span><span class="p">))</span><span class="w">
+  </span><span class="n">log_denom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="nf">exp</span><span class="p">(</span><span class="n">log_numer</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">exp</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a</span><span class="p">))</span><span class="w">
+  </span><span class="n">log_posterior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">log_numer</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">log_denom</span><span class="w">
+  
+  </span><span class="k">if</span><span class="p">(</span><span class="n">verbose</span><span class="p">){</span><span class="w">
+    </span><span class="n">cat</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="s1">'log-posterior prob: '</span><span class="p">,</span><span class="w"> </span><span class="n">log_posterior</span><span class="p">,</span><span class="s1">'\n'</span><span class="p">))</span><span class="w">
+    </span><span class="n">cat</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="s1">'    posterior prob: '</span><span class="p">,</span><span class="w"> </span><span class="nf">exp</span><span class="p">(</span><span class="n">log_posterior</span><span class="p">),</span><span class="s1">'\n'</span><span class="p">))</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+  
+  </span><span class="k">if</span><span class="p">(</span><span class="n">return_val</span><span class="p">)</span><span class="w"> </span><span class="nf">return</span><span class="p">(</span><span class="n">log_posterior</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">compute_posterior</span><span class="p">(</span><span class="m">10000</span><span class="p">,</span><span class="w"> </span><span class="m">5510</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## log-posterior prob: -0.0664927009465828
+##     posterior prob: 0.935669745334858
+</code></pre></div></div>
+
+<p>We find that the posterior probability that \(\theta = 0.6\) is roughly 0.94. For fun, we can evaluate how this posterior probability varies depending on the number of heads we observe out of \(n\) coin flip trials.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">25</span><span class="p">,</span><span class="w"> </span><span class="m">50</span><span class="p">,</span><span class="w"> </span><span class="m">100</span><span class="p">,</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="m">10000</span><span class="p">)</span><span class="w">
+</span><span class="n">head_prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0.001</span><span class="p">)</span><span class="w">
+</span><span class="n">probs_df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">head_prop</span><span class="p">)),</span><span class="w"> 
+                      </span><span class="n">heads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">head_prop</span><span class="p">,</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">ns</span><span class="p">)),</span><span class="w"> 
+                      </span><span class="n">log_post_probs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w">
+</span><span class="n">probs_df</span><span class="o">$</span><span class="n">heads_obs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">probs_df</span><span class="o">$</span><span class="n">heads</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">probs_df</span><span class="o">$</span><span class="n">n</span><span class="w">
+</span><span class="n">probs_df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">probs_df</span><span class="p">[</span><span class="nf">round</span><span class="p">(</span><span class="n">probs_df</span><span class="o">$</span><span class="n">heads_obs</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">probs_df</span><span class="o">$</span><span class="n">heads_obs</span><span class="p">,]</span><span class="w">
+
+</span><span class="k">for</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">ns</span><span class="p">){</span><span class="w">
+  </span><span class="n">start_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">which</span><span class="p">(</span><span class="n">probs_df</span><span class="o">$</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="w">
+  </span><span class="n">idxs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start_idx</span><span class="o">:</span><span class="p">(</span><span class="n">start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="n">probs_df</span><span class="o">$</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="m">-1</span><span class="p">)</span><span class="w">
+  </span><span class="n">obs_heads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">probs_df</span><span class="o">$</span><span class="n">heads_obs</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span><span class="w">
+  </span><span class="n">lpost_probs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lapply</span><span class="p">(</span><span class="n">obs_heads</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> 
+    </span><span class="n">compute_posterior</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">return_val</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">unlist</span><span class="w">
+  </span><span class="n">probs_df</span><span class="o">$</span><span class="n">log_post_probs</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lpost_probs</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">probs_df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">heads</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">exp</span><span class="p">(</span><span class="n">log_post_probs</span><span class="p">),</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">as.factor</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_line</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.8</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+  </span><span class="n">ylab</span><span class="p">(</span><span class="s1">'Posterior probability theta = 0.6'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+  </span><span class="n">xlab</span><span class="p">(</span><span class="s1">'Proportion of heads observed'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+  </span><span class="n">geom_vline</span><span class="p">(</span><span class="n">xintercept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.55</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'gray20'</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'dashed'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> 
+  </span><span class="n">guides</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">guide_legend</span><span class="p">(</span><span class="s1">'Number of \nCoin Flips (n)'</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="/assets/img/blogPosts/optim1.png" style="width:75%; display: block; margin: auto;">
+<br></p>
+
+<p>As expected, we see that as the proportion of heads increases, the posterior probability that \(\theta = 0.6\) increases, with an inflection point at \(\theta = 0.55\). Further, with larger sample sizes, the increase in posterior probability past \(0.5\) increases more sharply; at larger samples sizes, we are more sure in our inference for a given porportion of heads observed.</p>
+
+<p>Such computations would not be possible without robust strategies for dealing with underflow. Now, back to our discussion of optimization.</p>
+
+<p><br></p>
+
+<h3 id="simulating-data-for-optimization">Simulating Data for Optimization</h3>
+
+<p>Throughout our discussion of different optimization techniques, we can use the probit regression model as a motivating example. We can simulate data from this model and apply various optimization algorithms to this data for the sake of comparison.</p>
+
+<p>The probit regression model assumes the following relationship between a binary response \(y_i\) and a \(p\)-dimensional covariate vector \(\mathbf x_i\):</p>
+
+\[P(y_i = 1 | \mathbf x_i) = \Phi(\mathbf x_i^\top \boldsymbol \beta), \qquad i = 1,\dots,n\]
+
+<p>where \(\boldsymbol \beta = (\beta_1, \dots, \beta_p)^\top\) is an unknown \(p\)-dimensional vector of coefficients, and \(\Phi\) is the CDF of the standard Normal. Suppose we observe the \((y_i,\mathbf x_i)\)’s and are interested in estimating \(\boldsymbol\beta\).</p>
+
+<p>We can simulate \(\mathbf{x}_i'\overset{iid}\sim \mathcal{N}(0,2\mathbb{I}_p)\) for \(i = 1,\dots,n\) with \(n=300\). Note that to do this, we can simulate each individual component of \(\mathbf{x}_i\) independently. Then, we can construct a coefficients vector \(\boldsymbol{\beta}\) as follows: \(\beta_j = 1\) if \(j\) is odd and -1 otherwise, for \(j = 1,\dots,p\). We take this \(\boldsymbol\beta\) to be the “true” underlying coefficient vector that we try to estimate using a variety of optimization techniques. Finally, we can use \(\mathbf{x}_i\) and \(\boldsymbol{\beta}\) to simulate \(y_i\). We can simulate data for both \(p = 1\) (one-dimensional) and \(p = 10\) (multi-dimensional).</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">300</span><span class="w">
+</span><span class="n">sim_probit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">p</span><span class="p">){</span><span class="w">
+    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sapply</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">rnorm</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="o">=</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">sd</span><span class="o">=</span><span class="nf">sqrt</span><span class="p">(</span><span class="m">2</span><span class="p">)))</span><span class="w">
+    </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">as.matrix</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">p</span><span class="w"> </span><span class="o">%%</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">yes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">))</span><span class="w">
+    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnorm</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="c1"># Try p=1 and p=10</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">221</span><span class="p">)</span><span class="w">
+</span><span class="n">sim_p1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_probit</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">sim_p10</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_probit</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="m">10</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>With our data simulated, the goal is now to find the optimal underlying \(\boldsymbol\beta\) that generated our simulated data (which we pretend that we do not know). We can take a likelihood-based approach to finding the optimal underlying \(\boldsymbol\beta\).</p>
+
+<p><br></p>
+
+<h4 id="evaluating-the-log-likelihood">Evaluating the Log-Likelihood</h4>
+
+<p>First, we will need to write a robust subroutine to evaluate the log-likelihood function of \(\boldsymbol\beta\), which can be simplified by taking advantage of some useful properties of logarithms,</p>
+
+\[\begin{aligned}
+\ell(\boldsymbol{\beta}) &amp;= \log\prod_{i=1}^n \left(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right)^{y_i} \left(1 - \Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right)^{1-y_i} \\ &amp;= \sum_{i=1}^n y_i \log\left(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right) + (1-y_i)\log\left(1 - \Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right) \\ &amp;= \sum_{i=1}^n y_i \log\left(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right) + (1-y_i)\log\left( \Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})\right)
+\end{aligned}\]
+
+<p>Note that in the log-likelihood simplification above, we evaluate the term \(\left(1 - \Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right)\) as \(\Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})\) by the symmetry of the Normal CDF. This is advantageous here as it avoid numerical imprecision errors if \(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\) returns a value too close to 1 (specifically greater than 0.9999999 in R); in such cases R would simply evaluate \(\left(1 - \Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right)\) as 0, which will return \(-\text{Inf}\) when we subsequently take the logarithm.</p>
+
+<p>We can now implement this into a subroutine to evaluate the log-likelihood below.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">eval_logLik</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="n">cdf_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnorm</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+  </span><span class="n">ncdf_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnorm</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+  </span><span class="n">loglik_terms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="n">cdf_vals</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="nf">log</span><span class="p">(</span><span class="n">ncdf_vals</span><span class="p">)</span><span class="w">
+  </span><span class="nf">return</span><span class="p">(</span><span class="nf">sum</span><span class="p">(</span><span class="n">loglik_terms</span><span class="p">))</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><br></p>
+
+<h4 id="evaluating-the-gradient-of-the-log-likelihood">Evaluating the Gradient of the Log-Likelihood</h4>
+
+<p>As mentioned in the Introduction earlier, typically, mode finding of some target function (the log-likelihood in this case) is equivalent to root finding for its gradient. We can thus write a subroutine to evaluate the gradient of the log-likelihood function. This will prove useful for some optimization techniques we discuss next. First, we solve for this gradient mathematically.</p>
+
+\[\begin{aligned}
+\nabla_{\boldsymbol{\beta}}\ell(\boldsymbol{\beta}) &amp;= \nabla_{\boldsymbol{\beta}} \left[\sum_{i=1}^n y_i \log\left(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right) + (1-y_i)\log\left( \Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})\right)\right] \\ &amp;= \sum_{i=1}^n \left[\nabla_{\boldsymbol{\beta}} y_i \log\left(\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})\right)+ \nabla_{\boldsymbol{\beta}}(1-y_i)\log\left( \Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})\right)\right] \\ &amp;= \sum_{i=1}^n \left[\frac{y_i}{\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})} \varphi(\mathbf{x}_i^\top\boldsymbol{\beta}) \mathbf{x}_i + \frac{y_i - 1}{\Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})} \varphi(-\mathbf{x}_i^\top\boldsymbol{\beta}) \mathbf{x}_i \right] \\ &amp;= \sum_{i=1}^n \left[ \left( y_i\frac{\varphi(\mathbf{x}_i^\top\boldsymbol{\beta})}{\Phi(\mathbf{x}_i^\top\boldsymbol{\beta})} + (y_i - 1)\frac{\varphi(\mathbf{x}_i^\top\boldsymbol{\beta})}{\Phi(-\mathbf{x}_i^\top\boldsymbol{\beta})} \right)\mathbf{x}_i \right]
+\end{aligned}\]
+
+<p>We can now implement this into a subroutine below.</p>
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">eval_grad_logLik</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="n">cdf_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnorm</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+  </span><span class="n">ncdf_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnorm</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+  </span><span class="n">pdf_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dnorm</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">beta</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">scalars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="o">*</span><span class="n">pdf_vals</span><span class="o">/</span><span class="n">cdf_vals</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="m">-1</span><span class="p">)</span><span class="o">*</span><span class="n">pdf_vals</span><span class="o">/</span><span class="p">(</span><span class="n">ncdf_vals</span><span class="p">)</span><span class="w">
+  </span><span class="n">gradient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">scalars</span><span class="p">)</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w">
+  
+  </span><span class="nf">return</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>With all of this defined, we can finally discuss the first optimization, or more specifically root finding, method: Bisection.</p>
+
+<p><br></p>
+
+<h3 id="bisection-method">Bisection Method</h3>
+
+<p>Perhaps the simplest of all root finding methods for a 1-dimensional continuous function \(f(x)\) is the bisection method. The algorithm proceeds as follows:</p>
+<ul>
+  <li>Initialize by finding two numbers \(a &lt; b\) such that \(f(a) \cdot f(b) &lt; 0\), and set \(\ell = a\) and \(u = a\).</li>
+  <li>Then, bisect by letting \(c = (\ell + u)/2\) and computing \(f(c)\). If it is sufficiently close to 0, terminate. Otherwise set \(u \leftarrow c\) if \(f(\ell) \cdot f(c) &lt; 0\) and \(\ell \leftarrow c\) if \(f(\ell) \cdot f(c) &gt; 0\).</li>
+</ul>
+
+<p>This algorithm converges fairly quickly, as the “error”, or distance from the root, is essentially cut in half with each iteration. Again, if we seek to find optima for a differentiable function \(g(x)\), we can find the root of its derivative \(g′(x)\), requiring only knowledge of the initialization parameters \(a,b\) that bound a local optima.</p>
+
+<p>Returning to out probit regression model, for \(p=1\), we can write a bisection algorithm to find the MLE \(\hat\beta_{MLE}\). We seek to find a root of the gradient of the log-likelihood, which is equivalent to finding the maximum of the log-likelihood since the log-likelihood of a probit regression is globally concave.</p>
+
+<p>Let \(f(x)\) denote the gradient of the log-likelihood evaluated at \(\beta = x\). Our implementation below first takes in two numbers \(a &lt; b\) such that \(f(a)f(b) &lt; 0\) (otherwise an error is returned). The bisection algorithm then proceeds as described earlier. A plotting parameter is also included to visualize the convergence of the bisection algorithm.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bisection_find</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">fx</span><span class="p">,</span><span class="w"> </span><span class="n">epsilon</span><span class="p">,</span><span class="w"> </span><span class="n">initials</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">plotting</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">initials</span><span class="p">);</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">initials</span><span class="p">)</span><span class="w">
+  </span><span class="k">if</span><span class="p">(</span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nf">return</span><span class="p">(</span><span class="s2">"ERROR: Initial values provided do not evaluate to have opposite signs. 
+           Select different values.\n"</span><span class="p">)</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+  
+  </span><span class="c1"># First iteration:</span><span class="w">
+  </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w">
+  </span><span class="n">cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="w">
+  </span><span class="n">fc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w">
+  </span><span class="n">c_rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span><span class="w">
+  </span><span class="n">fc_rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span><span class="w">
+  
+  </span><span class="k">while</span><span class="p">(</span><span class="nf">abs</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">epsilon</span><span class="p">){</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">fc</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cx</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">fc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cx</span><span class="w">
+    </span><span class="n">cx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="w">
+    </span><span class="n">fc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="o">=</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span><span class="w">
     
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/9-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/9-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/9-1400.webp"></source>
-    
+    </span><span class="n">c_rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">c_rec</span><span class="p">,</span><span class="w"> </span><span class="n">cx</span><span class="p">)</span><span class="w">
+    </span><span class="n">fc_rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">fc_rec</span><span class="p">,</span><span class="w"> </span><span class="n">fc</span><span class="p">)</span><span class="w">
+    </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+  </span><span class="n">cat</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="s1">'Converged in '</span><span class="p">,</span><span class="w"> </span><span class="n">iter</span><span class="p">,</span><span class="s1">' iterations.\nRoot found at '</span><span class="p">,</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="s1">'.\n'</span><span class="p">))</span><span class="w">
+  
+  </span><span class="k">if</span><span class="p">(</span><span class="n">plotting</span><span class="o">==</span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="nf">return</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">range_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seq</span><span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">initials</span><span class="p">),</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">initials</span><span class="p">),</span><span class="w"> </span><span class="m">0.001</span><span class="p">)</span><span class="w">
+  </span><span class="n">rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">()</span><span class="w">
+  </span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">range_vals</span><span class="p">)</span><span class="w"> </span><span class="n">rec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span><span class="w"> </span><span class="n">fx</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span><span class="w">
+  </span><span class="n">plot</span><span class="p">(</span><span class="n">range_vals</span><span class="p">,</span><span class="w"> </span><span class="n">rec</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'l'</span><span class="p">,</span><span class="w"> </span><span class="n">xlab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Range of values, beta'</span><span class="p">,</span><span class="w"> 
+       </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f(beta): Gradient of log-likelihood'</span><span class="p">,</span><span class="w"> 
+       </span><span class="n">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paste0</span><span class="p">(</span><span class="s1">'Bisection Algorithm Steps (converged in '</span><span class="p">,</span><span class="w"> </span><span class="n">iter</span><span class="p">,</span><span class="s1">' iterations)'</span><span class="p">))</span><span class="w">
+  </span><span class="n">lines</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">initials</span><span class="p">),</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">initials</span><span class="p">)),</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> 
+        </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'l'</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'red'</span><span class="p">,</span><span class="w"> </span><span class="n">lty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'dashed'</span><span class="p">,</span><span class="w"> </span><span class="n">lwd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.75</span><span class="p">)</span><span class="w">
+  </span><span class="n">points</span><span class="p">(</span><span class="n">c_rec</span><span class="p">,</span><span class="w"> </span><span class="n">fc_rec</span><span class="p">,</span><span class="w"> </span><span class="n">pch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'x'</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'navy'</span><span class="p">)</span><span class="w">
+  </span><span class="nf">return</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
 
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/9.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+</span><span class="c1"># Example below</span><span class="w">
+</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_p1</span><span class="p">[[</span><span class="m">1</span><span class="p">]];</span><span class="w"> </span><span class="n">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_p1</span><span class="p">[[</span><span class="m">2</span><span class="p">]];</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_p1</span><span class="p">[[</span><span class="m">3</span><span class="p">]]</span><span class="w">
+</span><span class="n">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bisection_find</span><span class="p">(</span><span class="n">fx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval_grad_logLik</span><span class="p">,</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.0001</span><span class="p">,</span><span class="w"> </span><span class="n">initials</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-5</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">),</span><span class="w"> 
+                      </span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">plotting</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
 
-  </picture>
+<p><img src="/assets/img/blogPosts/optim2.png" style="width:75%; display: block; margin: auto;">
+<br></p>
 
-</figure>
+<p>As shown above, our bisection algorithm converged in 22 iterations, finding a root at 0.99999952, which is very close to the true parameter value of \(\beta = 1\) in the 1-dimensional case.</p>
 
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
+<p>We now turn to gradient-ascend algorithms to find the MLE of \(\boldsymbol\beta\) for the general \(p\)-dimensional case.</p>
 
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/7-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/7-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/7-1400.webp"></source>
-    
+<p><br></p>
 
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/7.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+<h3 id="gradient-based-optimization-methods">Gradient-based optimization methods</h3>
 
-  </picture>
-
-</figure>
-
-    </div>
-</div>
-<div class="caption">
-    A simple, elegant caption looks good between image rows, after each row, or doesn't have to be there at all.
-</div>
-
-<p>Images can be made zoomable.
-Simply add <code class="language-plaintext highlighter-rouge">data-zoomable</code> to <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code> tags that you want to make zoomable.</p>
-
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
-
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/8-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/8-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/8-1400.webp"></source>
-    
-
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/8.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
-
-  </picture>
-
-</figure>
-
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
-
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/10-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/10-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/10-1400.webp"></source>
-    
-
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/10.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
-
-  </picture>
-
-</figure>
-
-    </div>
-</div>
-
-<p>The rest of the images in this post are all zoomable, arranged into different mini-galleries.</p>
-
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
-
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/11-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/11-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/11-1400.webp"></source>
-    
-
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/11.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
-
-  </picture>
-
-</figure>
-
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
-
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/12-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/12-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/12-1400.webp"></source>
-    
-
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/12.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
-
-  </picture>
-
-</figure>
-
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        <figure>
-
-  <picture>
-    
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/7-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/7-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/7-1400.webp"></source>
-    
-
-    <!-- Fallback to the original file -->
-    <img src="/assets/img/7.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
-
-  </picture>
-
-</figure>
-
-    </div>
-</div>
 
     </div>
   </article>
 
 
-  
-    
-    <br>
-    <hr>
-    <br>
-    <ul class="list-disc pl-8"></ul>
-
-    <!-- Adds related posts to the end of an article -->
-    <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2>
-    <p class="mb-2">Here are some more articles you might like to read next:</p>
-  
-
-  <li class="my-2">
-    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2023/GPtutorial/">Gaussian Process Regression</a>
-  </li>
-
-  
-
-  <li class="my-2">
-    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2023/sidebar-table-of-contents/">a post with table of contents on a sidebar</a>
-  </li>
-
-  
-
-  <li class="my-2">
-    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2023/table-of-contents/">a post with table of contents</a>
-  </li>
-
-  
-
-  <li class="my-2">
-    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2015/math/">a post with math</a>
-  </li>
-
 </div>
 
+          </div>
+          <!-- sidebar, which will move to the top on a small screen -->
+          <div class="col-sm-1">
+            <nav id="toc-sidebar" class="sticky-top" style="white-space: nowrap;"></nav>
+          </div>
+        </div>
+        
       
     </div>
 
-    <!-- Footer -->    <!-- <footer class="sticky-bottom mt-5">
-      <div class="container">
-        &copy; Copyright 2023 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
+    <!-- Footer -->    <br>
+    <footer class="sticky-bottom mt-5">
+      <div class="container" style="text-align: center;">
+        © Copyright 2024 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a>.
 
       </div>
-    </footer> -->
+    </footer>
 
     <!-- JavaScripts -->
     <!-- jQuery -->
@@ -348,6 +407,9 @@ Simply add <code class="language-plaintext highlighter-rouge">data-zoomable</cod
   <!-- Medium Zoom JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script>
   <script defer src="/assets/js/zoom.js"></script>
+  <!-- Sidebar Table of Contents -->
+  <script defer src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
 
   <!-- Bootstrap Table -->
   <script defer src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>

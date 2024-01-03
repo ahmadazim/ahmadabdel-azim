@@ -10,10 +10,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Aggregating Expert Insights through Latent Regression Analysis | Ahmad  Abdel-Azim</title>
+    <title>Latent Regression Analysis | Ahmad  Abdel-Azim</title>
     <meta name="author" content="Ahmad  Abdel-Azim">
-    <meta name="description" content="Ahmad Abdel-Azim">
-    <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website">
+    <meta name="description" content="Building a Gibbs sampler to aggregate expert insights">
 
 
     <!-- Bootstrap & MDB -->
@@ -31,6 +30,9 @@
     <!-- Code Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/github.css" media="" id="highlight_theme_light">
 
+    
+    <!-- Sidebar Table of Contents -->
+    <link href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" rel="stylesheet">
     
 
     <!-- Styles -->
@@ -109,12 +111,16 @@
     <!-- Content -->
     <div class="container mt-5">
       
-        <!-- page.html -->
+        
+        <div class="row">
+          <!-- main content area -->
+          <div class="col-sm-11">
+            <!-- page.html -->
         <div class="post">
 
           <header class="post-header">
-            <h1 class="post-title">Aggregating Expert Insights through Latent Regression Analysis</h1>
-            <p class="post-description">Ahmad Abdel-Azim</p>
+            <h1 class="post-title">Latent Regression Analysis</h1>
+            <p class="post-description">Building a Gibbs sampler to aggregate expert insights</p>
           </header>
 
           <article>
@@ -145,9 +151,7 @@
 </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">(</span><span class="n">as.matrix</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<h1 id="questions">Questions</h1>
-
-<h2 id="part-1">Part 1</h2>
+<h1 id="part-1">Part 1</h1>
 
 <p><strong><em>Is it reasonable to assume that \(\text{Var}(\epsilon_{ij}) = 1\) in the model? Can you just assume an unknown variance \(\sigma^2\) for it and try to infer it from the data? Why or why not?</em></strong></p>
 
@@ -157,7 +161,7 @@
 
 <p>Further, assuming an unknown variance \(\sigma^2\) for \(\text{Var}(\epsilon_{ij})\) and trying to infer it from the data will not necessarily work well since we never actually assume the \(Z_{ij}\). These are in fact latent variables. Given that we only see the rank of the \(Z_{ij}\), and rank is invariant of scaling, assuming \(\text{Var}(\epsilon_{ij}) = 1\) is actually a very reasonable and viable strategy.</p>
 
-<h2 id="part-2">Part 2</h2>
+<h1 id="part-2">Part 2</h1>
 
 <p>We now Assume that \(\sigma^2_a \sim \text{Inv-}\chi^2(\nu_a, s^2_a)\), with \(\nu_a\) and \(s^2_a\) being values
 fixed or tuned by the user. We also assume that \(\beta_j \sim\mathcal{N}(0, \sigma^2_b)\), again with \(\sigma^2_b\) being a tuning hyperparameter input by the user. We want to write down the joint distribution of all the unknown parameters, the latent variables \(\mathbf Z_j\), and the observed ranking lists \(\tau_j\) in the model.</p>
@@ -193,13 +197,13 @@ p(\boldsymbol\tau, \mathbb Z, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_
 p(\boldsymbol\tau, \mathbb Z, \boldsymbol\beta,\boldsymbol\alpha,\sigma^2_a|\nu_a, s^2_a, \sigma^2_b,\mathbf X) &amp;= \prod_{j=1}^M\left[\left\{\prod_{i_1 = 1}^N \prod_{i_2 = 1}^N \left(\mathbb I_{\left\{\tau_j(i_1) &lt; \tau_j(i_2)\right\}}\right)^{\mathbb I_{\{i_1 \succ i_2\}}}\right\} \; \prod_{i=1}^N  \mathcal{N}(Z_{ij}; \alpha_i + \mathbf x_i^\top\boldsymbol\beta, 1) \right] \\ &amp;\qquad\times\text{Inv-}\chi^2(\nu_a, s^2_a) \left[\prod_{i=1}^N \mathcal{N}(\alpha_i; 0, \sigma^2_a)\right]\left[\prod_{k=1}^p\mathcal{N}(\beta_k; 0, \sigma^2_b)\right]
 \end{aligned}\]
 
-<h2 id="part-3">Part 3</h2>
+<h1 id="part-3">Part 3</h1>
 
 <p><strong><em>Explain in detail how the joint distribution obtained above takes care of missing ranking information.</em></strong></p>
 
 <p>In the joint distribution above, we importantly include the latent variables \(\mathbf Z_j\), which incorporate the evaluation score for ranker \(j\) across all the \(N\) entities/players. In the joint above, we have the condition that \(\tau_j(i_1)&lt;\tau_j(i_2)\iff i_1\succ i_2\) by raising the two indicator functions to each other. If the ranking information for a given player is not available by one of the rankers, ranking condition on \(\tau\) may still hold (thereby not “zeroing out” the joint), and we can then estimating the latent \(Z_{ij}\) for the missing player, thereby allowing us to add or impute their rank for ranker \(j\). For this missing player, as discussed in part 2, \(Z_{ij}\) will in fact be a Truncated Normal whose upper bound is the player ranked directly above and whose lower bound in the player ranked directly under. Note that this \(Z_{ij}\) can be estimated for a missing \(ij\)th ranking since we assume that heterogeneity among rankers for the \(i\)th player, namely \(\mathbf Z_i\), is simply a result of unit variance on \(\boldsymbol\epsilon_i\).</p>
 
-<h2 id="part-4">Part 4</h2>
+<h1 id="part-4">Part 4</h1>
 
 <p>Under the same prior assumptions as in Part 2, we can consider a data augmentation-based strategy and derive all conditional distributions necessary for implementing a Gibbs sampling algorithm to sample from the joint posterior distribution of all the unknown parameters and the latent variables \(\mathbf Z_j\). We will take advantage of the avrious conditional independence properties, illustrated by the graphical model (d-separation/blocking rules). First consider the full conditional distribution for \(\sigma_a^2\). We have,</p>
 
@@ -268,7 +272,7 @@ p(\mathbb Z | \boldsymbol\tau, \boldsymbol\beta, \boldsymbol\alpha, \sigma^2_a, 
 
 <p>Finally, recognize that the full conditional distribution of \(\boldsymbol\tau\) is simply \(p(\boldsymbol\tau\\|\mathbb Z)\) as illustrated by the blocking in the graphical model. We found this distribution in Part 2, but essentially we have by construction \(\tau_j = \text{rank}(\mathbf Z_j)\), which is how we will update the \(\boldsymbol\tau\) matrix in our Gibbs sampler implementation in the next Part. Essentially, we will iteratively draw samples from each conditional distribution to approximate draws from the joint posterior distribution.</p>
 
-<h2 id="part-5">Part 5</h2>
+<h1 id="part-5">Part 5</h1>
 
 <p>Using the conditional distributions from Part 4, we can now implement a Gibbs sampler we derived above to sample from the joint posterior distribution. We first write functions to draw from each conditional distribution derived in Part 4.</p>
 
@@ -456,7 +460,7 @@ efficient posterior estimates. Further, the ACF plots are similar across
 the chains, suggesting that the mixing and convergence properties are
 consistent.</p>
 
-<h2 id="part-6">Part 6</h2>
+<h1 id="part-6">Part 6</h1>
 
 <p>We want to summarize our posterior inference results. We can first provide posterior summaries of each \(\beta_k\) (for the $k$-th covariate). Again, note that we <strong>scaled</strong> the feature matrix, which will affect our values for \(\beta_k\); however, this simply means we can make standardized predictions using our model (or unstandardize \(\mathbf X\) by multiplying by variance and adding mean back). For stability, we consider the last half of the chain when making posterior summaries.</p>
 
@@ -580,7 +584,7 @@ consistent.</p>
 
 <p>These rankings seem pretty good, relative to the rankings in Table 1!</p>
 
-<h2 id="part-7">Part 7</h2>
+<h1 id="part-7">Part 7</h1>
 
 <p><strong><em>Comment on how well the current model fits the data. In particular,
 is there any evidence that some rankers may not be as good as others and
@@ -637,15 +641,23 @@ ranking, then LASSO might be useful in that context.</p>
 
         </div>
 
+          </div>
+          <!-- sidebar, which will move to the top on a small screen -->
+          <div class="col-sm-1">
+            <nav id="toc-sidebar" class="sticky-top" style="white-space: nowrap;"></nav>
+          </div>
+        </div>
+        
       
     </div>
 
-    <!-- Footer -->    <!-- <footer class="sticky-bottom mt-5">
-      <div class="container">
-        &copy; Copyright 2023 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
+    <!-- Footer -->    <br>
+    <footer class="sticky-bottom mt-5">
+      <div class="container" style="text-align: center;">
+        © Copyright 2024 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a>.
 
       </div>
-    </footer> -->
+    </footer>
 
     <!-- JavaScripts -->
     <!-- jQuery -->
@@ -663,6 +675,9 @@ ranking, then LASSO might be useful in that context.</p>
   <!-- Medium Zoom JS -->
   <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script>
   <script defer src="/assets/js/zoom.js"></script>
+  <!-- Sidebar Table of Contents -->
+  <script defer src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
 
   <!-- Bootstrap Table -->
   <script defer src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
