@@ -36,6 +36,13 @@
           text-align: right !important;
           width: 300px !important;
         }
+        .scrollable-container {
+            overflow-x: auto; /* Enables horizontal scrolling */
+            width: 100%; 
+        }
+        table {
+            min-width: 768px; /* Set a minimum width for your table */
+        }
     </style>
 </head>
 <body>
@@ -46,7 +53,8 @@
     <th>Duration</th>
     <th>Website</th>
   </tr> -->
-<table>
+  <div class="scrollable-container">
+  <table>
   <tr>
   <table-header>
     <tr>
@@ -206,5 +214,6 @@
   </table>
   </tr>
 </table>
+</div>
 </body>
 </html>

@@ -1,10 +1,12 @@
 ---
 layout: page
-title: 'Aggregating Expert Insights through Latent Regression Analysis'
-description: Ahmad Abdel-Azim
+title: 'Latent Regression Analysis'
+description: Building a Gibbs sampler to aggregate expert insights
 img: assets/img/projects/project1/cover.png
 importance: 1
 category: other
+toc:
+  sidebar: right
 ---
 
 # Setting
@@ -38,9 +40,8 @@ p = ncol(t2)
 X = scale(as.matrix(t2))
 ```
 
-# Questions
 
-## Part 1
+# Part 1
 
 ***Is it reasonable to assume that $$\text{Var}(\epsilon_{ij}) = 1$$ in the model? Can you just assume an unknown variance $$\sigma^2$$ for it and try to infer it from the data? Why or why not?***
 
@@ -52,7 +53,7 @@ Further, assuming an unknown variance $$\sigma^2$$ for $$\text{Var}(\epsilon_{ij
 
 
 
-## Part 2
+# Part 2
 
 We now Assume that $$\sigma^2_a \sim \text{Inv-}\chi^2(\nu_a, s^2_a)$$, with $$\nu_a$$ and $$s^2_a$$ being values
 fixed or tuned by the user. We also assume that $$\beta_j \sim\mathcal{N}(0, \sigma^2_b)$$, again with $$\sigma^2_b$$ being a tuning hyperparameter input by the user. We want to write down the joint distribution of all the unknown parameters, the latent variables $$\mathbf Z_j$$, and the observed ranking lists $$\tau_j$$ in the model. 
@@ -99,7 +100,7 @@ $$
 
 
 
-## Part 3
+# Part 3
 
 ***Explain in detail how the joint distribution obtained above takes care of missing ranking information.***
 
@@ -107,7 +108,7 @@ In the joint distribution above, we importantly include the latent variables $$\
 
 
 
-## Part 4
+# Part 4
 
 Under the same prior assumptions as in Part 2, we can consider a data augmentation-based strategy and derive all conditional distributions necessary for implementing a Gibbs sampling algorithm to sample from the joint posterior distribution of all the unknown parameters and the latent variables $$\mathbf Z_j$$. We will take advantage of the avrious conditional independence properties, illustrated by the graphical model (d-separation/blocking rules). First consider the full conditional distribution for $$\sigma_a^2$$. We have, 
 
@@ -196,7 +197,7 @@ Finally, recognize that the full conditional distribution of $$\boldsymbol\tau$$
 
 
 
-## Part 5
+# Part 5
 
 Using the conditional distributions from Part 4, we can now implement a Gibbs sampler we derived above to sample from the joint posterior distribution. We first write functions to draw from each conditional distribution derived in Part 4.
 
@@ -390,7 +391,7 @@ efficient posterior estimates. Further, the ACF plots are similar across
 the chains, suggesting that the mixing and convergence properties are
 consistent.
 
-## Part 6
+# Part 6
 
 We want to summarize our posterior inference results. We can first provide posterior summaries of each $$\beta_k$$ (for the $k$-th covariate). Again, note that we **scaled** the feature matrix, which will affect our values for $$\beta_k$$; however, this simply means we can make standardized predictions using our model (or unstandardize $$\mathbf X$$ by multiplying by variance and adding mean back). For stability, we consider the last half of the chain when making posterior summaries. 
 
@@ -517,7 +518,7 @@ ggplot() +
 
 These rankings seem pretty good, relative to the rankings in Table 1!
 
-## Part 7
+# Part 7
 
 ***Comment on how well the current model fits the data. In particular,
 is there any evidence that some rankers may not be as good as others and

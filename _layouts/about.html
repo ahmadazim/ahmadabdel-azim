@@ -3,11 +3,12 @@ layout: default
 ---
 
 <!-- about.html -->
-      <div class="post", style = "position:relative; top:40px">
+      <div class="post", style = "position:relative;">
 
         <article>
           {% if page.profile -%}
-          <div style = "position:relative; bottom:20px", class="profile float-{%- if page.profile.align == 'left' -%}left{%- else -%}right{%- endif -%}">
+          <br /><br />
+          <div style = "position:relative;", class="profile float-{%- if page.profile.align == 'left' -%}left{%- else -%}right{%- endif -%}">
             {%- if page.profile.image %}
               {%- assign profile_image_path = page.profile.image | prepend: 'assets/img/' -%}
 
@@ -23,15 +24,17 @@ layout: default
               alt=page.profile.image -%}
             {% endif -%}
             {%- if page.profile.address %}
-            <div class="address">
-              {{ page.profile.address }}
-            </div>
+              <div class="address">
+                {{ page.profile.address }}
+              </div>
             {%- endif %}
 
-            <!-- Social -->
+          <!-- Social -->
           {%- if page.social %}
-            <div class="contact-icons" style="position:relative; top:-45px">
-              {% include social.html %}
+            <div class="social">
+              <div class="contact-icons" style="position:relative; margin-top: -30px;">
+                {% include social.html %}
+              </div>
             </div>
           {%- endif %}
 
@@ -39,46 +42,29 @@ layout: default
           {%- endif %}
 
           <header>
-          <h1 class="post-title" style = "position:relative; left:20px">
-          <!-- {% if site.title == "blank" -%}{{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}{%- else -%}{{ site.title }}{%- endif %} -->
-          <span class="font-weight-bold" style="font-size:30px;">I'm Ahmad Abdel-Azim.</span>
-          </h1>
-          <p class="desc" style = "position:relative; left:20px">{{ page.subtitle }}</p>
+            <h1 class="post-title" style = "position:relative;">
+              <span class="font-weight-bold" style="font-size:30px;">I'm Ahmad Abdel-Azim.</span>
+            </h1>
+            <p class="desc" style = "position:relative;">{{ page.subtitle }}</p>
           </header>
-
-          <div class="clearfix" style = "position:relative; left:20px">
-            {{ page.next_image }}
-          </div>
           
-          <hr style = "position:relative; top:-65px">
-                    
-          <div class="clearfix" style = "position:relative; top:-60px">
+          <div class="clearfix"></div> 
+          <hr style = "position:relative;">
+
+          <div class="clearfix" style = "position:relative;">
             {{ content }}
           </div>
-
-          
-          <!-- <div class="clearfix", style = "position:relative; top:80px">
-            {{ content }}
-          </div> -->
-
-          <!-- News -->
-          <!-- {% if page.news and site.announcements.enabled -%}
-            <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit;">news</a></h2>
-            {%- include news.html limit=true %}
-          {%- endif %} -->
 
           <!-- Experience -->
-          <!-- {% if page.latest_posts -%} -->
-          <h3><a href="{{ '/cv/' | relative_url }}" style="color: inherit; position:relative; top:-30px;">Experience</a></h3>
-          <div style="position:relative; top:-50px;">{%- include experience.html %}</div>
-          <!-- <div include-html="experience.html"></div> -->
-          <!-- {%- endif %} -->
+          <br />
+          <h3><a href="{{ '/cv/' | relative_url }}" style="color: inherit; position:relative;">Experience</a></h3>
+          <div style="position:relative; top:-20px">{%- include experience.html %}</div>
           
 
           <!-- Selected projects -->
           {% if page.selected_projects -%}
-            
-            <h2><a href="{{ '/_projects/' | relative_url }}" style="color: inherit;">Selected Projects</a></h2>
+            <br />
+            <h2>Selected <a href="{{ '/projects/' | relative_url }}" style="color: inherit;">Projects</a></h2>
             {%- include selected_projects.html %}
           {%- endif %}
 
