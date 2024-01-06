@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    <!-- Metadata, OpenGraph and Schema.org -->
+    
+
+    <!-- Standard metadata -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Bayesian NMF | Ahmad  Abdel-Azim</title>
+    <meta name="author" content="Ahmad  Abdel-Azim">
+    <meta name="description" content="Derriving a Bayesian framework for NMF and implementing a Gibbs sampler for efficient inference">
+
+
+    <!-- Bootstrap & MDB -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-DF7Zhf293AJxJNTmh5zhoYYIMs2oXitRfBjY+9L//AY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous">
+
+    <!-- Bootstrap Table -->
+    <link defer rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.css">
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.1/css/academicons.min.css" integrity="sha256-i1+4qU2G2860dGGIOJscdC30s9beBXjFfzjWLjBRsBg=" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons">
+
+    <!-- Code Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/github.css" media="" id="highlight_theme_light">
+
+    
+    <!-- Sidebar Table of Contents -->
+    <link href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" rel="stylesheet">
+    
+
+    <!-- Styles -->
+    
+    <link rel="shortcut icon" href="/assets/img/webicon.png">
+    
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="canonical" href="https://ahmadabdel-azim.com/projects/bayesNMF/">
+
+    <!-- Dark Mode -->
+    
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+
+    <!-- Header -->
+    <header>
+
+      <!-- Nav Bar -->
+      <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top">
+        <div class="container">
+          <a class="navbar-brand title font-weight-lighter" href="https://ahmadabdel-azim.com"><span class="font-weight-bold">Ahmad Abdel-Azim</span>
+          </a>
+          <!-- Social Icons -->
+          <!-- Navbar Toggle -->
+          <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar top-bar"></span>
+            <span class="icon-bar middle-bar"></span>
+            <span class="icon-bar bottom-bar"></span>
+          </button>
+
+          <div class="collapse navbar-collapse text-right" id="navbarNav">
+            <ul class="navbar-nav ml-auto flex-nowrap">
+
+              <!-- About -->
+              <!-- <li class="nav-item ">
+                <a class="nav-link" href="/">home</a>
+              </li> 
+               -->
+              
+              <!-- Blog -->
+              <!-- <li class="nav-item ">
+                <a class="nav-link" href="/blog/">Blog</a>
+              </li> -->
+
+              <!-- Other pages -->
+              <li class="nav-item ">
+                <a class="nav-link" href="/publications/">Publications</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/projects/">Projects</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/blog/">Blog</a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="/cv/">CV</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Scrolling Progress Bar -->
+      <progress id="progress" value="0">
+        <div class="progress-container">
+          <span class="progress-bar"></span>
+        </div>
+      </progress>
+    </header>
+
+
+    <!-- Content -->
+    <div class="container mt-5">
+      
+        
+        <div class="row">
+          <!-- main content area -->
+          <div class="col-sm-11">
+            <!-- page.html -->
+        <div class="post">
+
+          <header class="post-header">
+            <h1 class="post-title">Bayesian NMF</h1>
+            <p class="post-description">Derriving a Bayesian framework for NMF and implementing a Gibbs sampler for efficient inference</p>
+          </header>
+
+          <article>
+            <h1 id="introduction">Introduction</h1>
+
+<p>Introduced as an unsupervised learning technique for high-dimensional data analysis and compression, non-negative matrix factorization (NMF) has become a widely-used technique to extract sparse, meaningful, and more interpretable feature decompositions from non-negative data sets [<a href="#references">1</a>]. In particular, this non-negativity constraint is natural and relevant to a wide variety of contexts, including pixel intensities, amplitude spectra, and biological sequence read counts data. Accordingly, NMF has been used extensively across numerous areas, from image processing, particularly in extracting useful features from image databases [<a href="#references">2</a>], to genetic data analysis, particularly in finding cellular and molecular features that are associated with distinct biological processes [<a href="#references">3</a>].</p>
+
+<p>Given a data matrix \(\mathbf{X} = \{\vec{x}_i\}_{i=1}^N\) where \(\vec{x}_i \in \mathbb{R}^d\) and \(x_{ij} \geq 0 \; \forall\; i,j\), NMF seeks to find lower-dimensional matrices \(\mathbf{W} \in \mathbb{R}^{N\times k}\) and \(\mathbf{H} \in \mathbb{R}^{k\times d}\) such that \(\mathbf{X}\approx \mathbf{WH}\). Again, note that NMF does not allow negative entries in the matrix factors \(\mathbf{W}\) and \(\mathbf{H}\), namely \(w_{ij} \geq 0, h_{ij}\geq 0 \; \forall\; i,j\). Due to these non-negativity constraints, only additive combinations among features are allowed which intuitively explains how NMF learns a parts-based representation of the data. This is a particular contrast to methods like Principal Component Analysis (PCA) where feature subtractions can occur [<a href="#references">1</a>].</p>
+
+<p>Here, we discuss the NMF procedure in a Bayesian framework. NMF is typically interpreted as a low-rank data approximation; however, it can also be seen as a maximum likelihood estimate of the non-negative factorizing matrices with assumptions made on the data generating distributions [<a href="#references">4</a>]. From a Bayesian perspective, efficient Markov chain Monte Carlo (MCMC) methods can instead be used for estimating the posterior densities of these factorizing matrices, leveraging a Gibbs sampling procedure. This provides us with the full marginal posterior density of the factors, which is valuable for factorization interpretation and uncertainty estimates [<a href="#references">4</a>].</p>
+
+<p>We can again explicitly state this NMF problem as \(\mathbf{X} = \mathbf{WH} + \mathbf{E}\), where \(\mathbf{E}\) is a residual matrix and \(\mathbf{W}, \mathbf{H}, \mathbf{X}\) are the element-wise non-negative matrices defined earlier. In Bayesian inference, our assumptions about the distribution of this residual term is captured in the likelihood function, and likewise, our assumptions about the parameters of the model are captured in the prior densities defined. While priors are chosen to reflect our beliefs about the parameter distribution, prior densities with convenient parameteric forms or conjugacies may be chosen to allow for efficient inference in the overall model [<a href="#references">4</a>]. Here, we choose Normal likelihoods and Exponential priors (note, this satisfies the non-negativity constraints), which are widely-applicable and efficient in the Gibbs sampling procedure.</p>
+
+<p>Estimating the posterior densities of the factorizing matrices is supported by Monte Carlo methods, including the Gibbs sampler. In Gibbs sampling, samples are repeatedly drawn from conditional posterior densities of the model parameters, namely \(\mathbf{W}, \mathbf{H}\), and this converges to a sample from the joint posterior distribution [<a href="#references">4</a>].</p>
+
+<p><br></p>
+
+<h1 id="method">Method</h1>
+
+<h2 id="model-assumptions">Model Assumptions</h2>
+<p>As discussed earlier, the NMF problem can be stated as \(\mathbf{X} = \mathbf{WH} + \mathbf{E}\), where \(\mathbf{X}\in\mathbb{R}^{N\times d}\) is the data matrix that is factorized as the product of the ement-wise non-negative matrices, \(\mathbf{W}\in\mathbb{R}^{N\times K}_{+}\) and \(\mathbf{H}\in\mathbb{R}^{K\times d}_{+}\), and \(\mathbf{E}\in\mathbb{R}^{N\times d}\) is a residual matrix. We can define prior densities with convenient parameteric forms and conjugacies here to allow for efficient inference in the overall model. Specifically, we choose Normal likelihoods and Exponential priors, thereby satisfying the non-negativity constraints. Namely, we assume the residuals are i.i.d. Normally distributed with zero mean and variance \(\sigma^2\); namely,</p>
+
+\[\epsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)\]
+
+<p>Let \(\boldsymbol\theta = \{\mathbf{W},\mathbf{H},\sigma^2\}\) denote all the parameters in the model. Then, we have the following likelihood,</p>
+
+\[p(\mathbf{X}|\boldsymbol\theta) = \prod_{i=1}^N\prod_{j=1}^d \mathcal{N}(X_{ij};(\mathbf{WH})_{ij}, \sigma^2)\]
+
+<p>where \(\mathcal{N}(x;\mu,\sigma^2) = (2\pi\sigma^2)^{-1/2}\exp[-(x-\mu)^2/2\sigma^2 ]\) is the Normal density. We also assume that \(\mathbf{W}\) and \(\mathbf{H}\) are independently Exponentially distributed with scale parameters \(\omega_{ik}\) and \(\eta_{kd}\). We have the following priors,</p>
+
+\[p(\mathbf{W}) = \prod_{i=1}^N\prod_{k=1}^K
+\mathcal{E}(W_{ik};\omega_{ik}) \qquad p(\mathbf{H}) = \prod_{k=1}^K\prod_{j=1}^d
+\mathcal{E}(H_{kj};\eta_{kj}) \qquad\]
+
+<p>where \(\mathcal{E}(x;\lambda) = \lambda\exp[-\lambda x], \;\;x&gt;0\) is the Exponential density. Finally, we can choose a prior for the noise variance. Given the Normal-Inverse-Gamma conjugacy, we can choose the prior density for the noise term as \(\mathcal{IG}(k,\theta)\), namely an Inverse Gamma density with shape \(k\) and scale \(\theta\),</p>
+
+\[p(\sigma^2) = \mathcal{IG}(\sigma^2; k,\theta) = \frac{\theta^k}{\Gamma(k)}(\sigma^2)^{-k-1}\exp[-\theta/\sigma^2]\]
+
+<p>Thus, by Bayes rule, we have that the posterior is proportional to the product of the likelihood and priors,</p>
+
+\[p(\boldsymbol\theta|\mathbf{X}) = \frac{p(\mathbf{X}|\boldsymbol\theta)\; p(\boldsymbol\theta)}{p(\mathbf{X})} \propto p(\mathbf{X}|\boldsymbol\theta)\; p(\sigma^2) \; p(\mathbf{W})\; p(\mathbf{H})\]
+
+<p>Note that this posterior can be maximized to yield estimates of our model parameters, in particular \(\mathbf{W}\) and \(\mathbf{H}\). However, here, we are interested in estimating the full marginal density of the factorizing matrices; since integrating the posterior density to directly compute the marginal is intractable, we can instead turn to MCMC sampling methods, like the Gibbs sampler.</p>
+
+<p><br></p>
+
+<h2 id="gibbs-sampling">Gibbs Sampling</h2>
+
+<p>We can leverage Monte Carlo methods like the Gibbs Sampler to approximate the full marginal posterior densities of the factorizing matrices and other model parameters in Bayesian NMF. Samples are sequentially drawn from conditional posterior densities of the model parameters, namely \(\mathbf{W}, \mathbf{H}\), and this converges to a sample from the joint posterior distribution [<a href="#references">4</a>]. This in turn allows us to infer the posterior distributions of the model parameters without needing to compute them exactly, which can otherwise be computationally intensive, especially for large matrices.</p>
+
+<p>Briefly, the Gibbs sampler for Bayesian NMF proceeds as follows. We first initialize the model parameters, namely the factor matrices and noise variance, to random values. We can then sample the posterior conditional distributions of each of the model parameters, holding the other parameters fixed. We then repeat this step for a sufficient number of iterations to get a good approximation of the posterior distribution.</p>
+
+<p>It is straightforward to see that the conditional densities of the elements in \(\mathbf{W}\) and \(\mathbf{H}\) are proportional to the product of a Normal and Exponential distribution, namely a Rectified Gaussian distribution, which can be denoted \(\mathcal{R}(x;\mu,\sigma^2,\lambda) \propto \mathcal{N}(x;\mu,\sigma^2)\;\mathcal{E}(x;\lambda)\). Thus, we have the following conditional density for factorizing matrix components \(W_{ik}\) and \(H_{kj}\),</p>
+
+\[\begin{aligned}
+p(W_{ik}|\mathbf{X}, W_{\setminus (ik)}, \mathbf{H}, \sigma^2) &amp;= \mathcal{R}\left(W_{ik};\mu_{W_{ik}}, \sigma^2_{W_{ik}},\omega_{ik}\right) \\ p(H_{kj}|\mathbf{X}, H_{\setminus (kj)},\mathbf{W}, \sigma^2) &amp;= \mathcal{R}\left(H_{kj};\mu_{H_{kj}}, \sigma^2_{H_{kj}},\eta_{jk}\right)
+\end{aligned}\]
+
+\[\begin{aligned}
+\mu_{W_{ik}} &amp;= \frac{\sum_j\left(X_{ij} - \sum_{k'\ne k} W_{ik'}H_{k'j}\right) H_{kj}}{\sum_j H^2_{kj}}, \qquad \sigma^2_{W_{ik}} = \frac{\sigma^2}{\sum_j H_{kj}^2} \\
+\mu_{H_{kj}} &amp;= \frac{\sum_i\left(X_{ij} - \sum_{k'\ne k}W_{ik'}H_{k'}\right) W_{ik}}{\sum_i W^2_{ik}}, \qquad \sigma^2_{H_{kj}} = \frac{\sigma^2}{\sum_i W_{ik}^2}\\
+\end{aligned}\]
+
+<p>where \(W_{\setminus (ik)}\) for example denotes all elements of \(\mathbf{W}\) except \(W_{ik}\). Likewise, using the Normal-Inverse-Gamma conjugacy, we can recognize that the conditional density of \(\sigma^2\) is Inevrse-Gamma,</p>
+
+\[p(\sigma^2|\mathbf{X},\mathbf{W},\mathbf{H}) = \mathcal{IG}\left(\sigma^2; k_{\sigma^2},\theta_{\sigma^2}\right)\]
+
+\[k_{\sigma^2} = \frac{Nd}{2} + k + 1, \qquad \theta_{\sigma^2} = \frac12\sum_{i,j}(\mathbf{X} - \mathbf{WH})_{ij}^2 + \theta\]
+
+<p>With these conditional densities defined, we can sequentially sample from them to approximate draws from the posterior distribution.</p>
+
+<p><br></p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>In practice we do not know the optimal model dimensionality (low-rank approximation) of our data, and we need to estimate its value. The appropriate choice of rank or factors \(K\) for a given data set is an important consideration in both the original NMF formulation and this Bayesian NMF formulation. When not immediately obvious from the nature of the data, we can perform model selection to select the optimal \(K\) by considering the marginal likelihood \(p(\mathbf{X})\). However, directly integrating the posterior is intractable, so instead, we can estimate this marginal likelihood using a variety of MCMC methods, such as importance sampling, path sampling, and bridge sampling [<a href="#references">4</a>]. Typically, for both NMF and Bayesian NMF, model selection is conducted by running the algorithm until convergence for several possible factors, namely several values of \(K\). We then select the \(K\) with a sharp increase in log-likelihood followed by a plateau. Refer the the Examples section for such an approach.</p>
+
+<p>It is worth noting that we can also use Chib’s method [<a href="#references">5</a>] for far more efficient model selection. This method has the advantage of only requiring posterior draws, which is well-suited here since we leverage a Gibbs sampler. By Bayes rule, we know that we can write the marginal likelihood as,</p>
+
+\[p(\mathbf{X}) = \frac{p(\mathbf{X}|\boldsymbol\theta)\;p(\boldsymbol\theta)}{p(\boldsymbol\theta|\mathbf{X})}\]
+
+<p>This relation is the basis of Chib’s method. The numerator can easily be computed for any specified \(\boldsymbol\theta\), so the difficulty is in evaluating the denominator, the posterior density at \(\boldsymbol\theta\). Consider segmenting the parameters into \(P\) blocks, \(\{\boldsymbol\theta_1, \dots, \boldsymbol\theta_P\}\). Since we have,</p>
+
+\[P(\boldsymbol\theta|\mathbf{X}) = p(\boldsymbol\theta_1|\mathbf{X})\;p(\boldsymbol\theta_2|\boldsymbol\theta_1,\mathbf{X})\;\cdots p(\boldsymbol\theta_P|\boldsymbol\theta_1,\dots,\boldsymbol\theta_{P-1},\mathbf{X})\]
+
+<p>then we can choose these \(P\) parameter blocks such that they are well-suited for Gibbs sampling here as well. In other words, we can estimate each conditional density above by averaging over the “full” conditional density,</p>
+
+\[p(\boldsymbol\theta_p|\boldsymbol\theta_1,\dots,\boldsymbol\theta_{p-1},\mathbf{X}) \approx \frac{1}{M}\sum_{m=1}^M p(\boldsymbol\theta_p|\boldsymbol\theta_1,\dots,\boldsymbol\theta_{p-1},\boldsymbol\theta_{p+1}^{(m)},\dots,,\boldsymbol\theta_{P}^{(m)},\mathbf{X})\]
+
+<p>where \(\boldsymbol\theta_{p+1}^{(m)}, \dots,\boldsymbol\theta_P^{(m)}\) are Gibbs samples from \(p(\boldsymbol\theta_{p+1},\dots,\boldsymbol\theta_{P}\\|\boldsymbol\theta_{1},\dots,\boldsymbol\theta_{p-1})\). Using this approach, we can thus evaluate the marginal likelihood. While this approach is valid for any value of \(\boldsymbol\theta\), it is most accurate when \(\boldsymbol\theta\) is chosen to be a high-density point; intuitively then, we can choose \(\boldsymbol\theta\) to be the posterior mode.</p>
+
+<p>To compute that <em>maximum a posteriori</em> (MAP) estimate, we can leverage an efficient algorithm known as iterated conditional modes (ICM) [<a href="#references">6</a>]. In this approach, we simply iterate over the parameters of the model and we set each parameter to the conditional mode; after sufficient iterations, ICM will converge to a local maximum of the joint posterior density. In this manner, the ICM method is similar to a coordinate ascent algorithm, enjoying low computational cost per iteration.</p>
+
+<p><br></p>
+
+<h2 id="algorithm-implementation">Algorithm Implementation</h2>
+
+<p>We have derived much of the the theory and equations behind Bayesian NMF in Section 2.2 earlier; however, when implementing this algorithm, there are some key realizations to mention. First, recognize that the elements in each column of \(\mathbf{W}\) and row of \(\mathbf{H}\) are assumed to be conditionally independent, so when implementing the algorithm, we can simply sample an entire column of \(\mathbf{W}\) and row of \(\mathbf{H}\) simultaneously. Further, we leverage matrix computation to avoid inefficient summations, but also, to avoid directly computing large matrices we can strategically define the following,</p>
+
+\[\begin{aligned} 
+\mathbf{A} &amp;= \mathbf{W}^\top\mathbf{W},\qquad \mathbf{B} = \mathbf{H}\mathbf{H}^\top, \qquad \mathbf{C} = \mathbf{W}^\top\mathbf{X}, \qquad \mathbf{D} = \mathbf{X}\mathbf{H}^\top \\
+\chi &amp;= \frac12\sum_{i,j}\mathbf{X}_{i,j}^2\;\;, \qquad \xi = \frac12\sum_{i,k}\mathbf{W}_{ik}(\mathbf{WB}-2\mathbf{D})_{ik}\\
+\mathbf{w}_k &amp;= \frac{\mathbf{D}_{:,k} - \mathbf{W}_{:,\setminus k}\mathbf{B}_{\setminus k,k} - \omega_{:,k}\;\sigma^2}{B_{kk}}\;, \qquad \mathbf{h}_k  = \frac{\mathbf{C}_{k,:} - \mathbf{A}_{k,\setminus k}\mathbf{H}_{\setminus k,:} - \eta_{k,:}\;\sigma^2}{A_{kk}}
+\end{aligned}\]
+
+<p>where the notation \(\mathbf{W}_{:,\setminus k}\) denotes the submatrix of \(\mathbf{W}\) which consists of all columns except the \(k\)-th column. Thus,  the most intense computation is comprised of computing the matrix products \(\mathbf{D}\) and \(\mathbf{C}\), which can be pre-computed at each iteration. With these definitions, we can implement an efficient NMF Gibbs sampler as follows,</p>
+
+<p><img src="/assets/img/projects/project5/algorithm.png" style="width:85%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p><br></p>
+
+<h1 id="examples">Examples</h1>
+
+<p>We can test the utility of a Gibbs sampler, in the Bayesian NMF framework described earlier, in discerning the factorizing matrices from an observed data matrix. Before testing this method on real data, we can test it on simulated data. There are scarce resources for Bayesian NMF in R, but an implementation of Bayesian NMF detailed in [<a href="#references">7</a>] is available in Python at the following <a href="https://github.com/ThomasBrouwer/BNMTF" rel="external nofollow noopener" target="_blank">GitHub repository</a>. We use this implementation in our simulation study below.</p>
+
+<p><br></p>
+
+<h2 id="simulation-study">Simulation Study</h2>
+
+<p>The BNMF repository includes scripts to generate toy datasets for testing the Bayesian NMF method. We can first use the <code class="language-plaintext highlighter-rouge">generate_dataset</code> function to generate a toy dataset; we choose \(N=100, \;d=80, \;K=10\), namely \(\mathbf{X} \in\mathbb{R}^{100\times80}\), with and \(K=10\) latent factors. We can also define priors for both \(\mathbf{W} \in\mathbb{R}^{100\times10}\) and \(\mathbf{H} \in\mathbb{R}^{10\times80}\) to be uniform over all entries. Regarding the noise matrix matrix \(\mathbf{E} \in\mathbb{R}^{100\times80}\), we simply add Gaussian noise with variance <code class="language-plaintext highlighter-rouge">true_sigma = 2.5</code> to each element of \(\mathbf{X}\). Note that as is usually more convenient in the Bayesian framework, we define the precision \(\tau = \sigma^{-2}\), namely the inverse of the variance. We implement this simulation below and show the distribution of the noise added to the observed data matrix. Note that we also take the first 500 iterations as burn-in before calculating the expected model parameters.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="n">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="n">sys</span>
+<span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="kn">from</span> <span class="n">BNMTF.code.models.nmf_np</span> <span class="kn">import</span> <span class="n">NMF</span>
+<span class="kn">from</span> <span class="n">BNMTF.code.models.bnmf_gibbs_optimised</span> <span class="kn">import</span> <span class="n">bnmf_gibbs_optimised</span>
+<span class="kn">from</span> <span class="n">BNMTF.data_toy.bnmf.generate_bnmf</span> <span class="kn">import</span> <span class="n">generate_dataset</span>
+
+<span class="n">project_location</span> <span class="o">=</span> <span class="sh">"</span><span class="s">./</span><span class="sh">"</span>
+<span class="n">sys</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">project_location</span><span class="p">)</span> 
+
+<span class="c1"># Model parameters
+</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">burn_in</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">thinning</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Defining priors
+</span><span class="n">omega</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span>
+<span class="n">lambdaW</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">lambdaH</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="sh">'</span><span class="s">alpha</span><span class="sh">'</span><span class="p">:</span> <span class="n">omega</span><span class="p">,</span> <span class="sh">'</span><span class="s">beta</span><span class="sh">'</span><span class="p">:</span><span class="n">eta</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaU</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaW</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaV</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaH</span> <span class="p">}</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">d</span><span class="p">))</span>
+
+<span class="c1"># Simulation parameters
+</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">10</span>    <span class="c1"># dimensions
+</span><span class="n">true_sigma</span> <span class="o">=</span> <span class="mf">2.5</span>         <span class="c1"># variance
+</span><span class="n">true_tau</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">true_sigma</span>  <span class="c1"># precision
+</span><span class="n">init_WH</span> <span class="o">=</span> <span class="sh">'</span><span class="s">random</span><span class="sh">'</span>       <span class="c1"># random initialization
+</span>
+<span class="c1"># Simulate data
+</span><span class="n">W</span><span class="p">,</span> <span class="n">Ht</span><span class="p">,</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">true_X</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="nf">generate_dataset</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">lambdaW</span><span class="p">,</span><span class="n">lambdaH</span><span class="p">,</span><span class="n">true_tau</span><span class="p">)</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">Ht</span><span class="p">.</span><span class="n">T</span>
+
+<span class="c1"># Showing noise
+</span><span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">((</span><span class="n">true_X</span> <span class="o">-</span> <span class="n">X</span><span class="p">).</span><span class="nf">flatten</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">Simulated variance = </span><span class="sh">"</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">var</span><span class="p">(</span><span class="n">true_X</span> <span class="o">-</span> <span class="n">X</span><span class="p">),</span><span class="mi">4</span><span class="p">))</span> <span class="o">+</span> 
+  <span class="sh">"</span><span class="s"> (true variance = </span><span class="sh">"</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">true_sigma</span><span class="p">)</span> <span class="o">+</span> <span class="sh">"</span><span class="s">)</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+<p><img src="/assets/img/projects/project5/variance_dist.png" style="width:50%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We can confirm that the simulated variance is roughly equal to the true variance defined in this simulation. We can now run the Bayesian NMF method.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Run the Gibbs sampler
+</span><span class="n">BNMF</span> <span class="o">=</span> <span class="nf">bnmf_gibbs_optimised</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">initialise</span><span class="p">(</span><span class="n">init_WH</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Iteration 1. MSE: 134294.99267. R^2: 0.47024. Rp: 0.757714. 
+## ....
+## Iteration 2000. MSE: 2.5096789. R^2: 0.99999. Rp: 0.999995.
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Extracting estimates
+</span><span class="n">burn_in</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="p">(</span><span class="n">exp_W</span><span class="p">,</span> <span class="n">exp_Ht</span><span class="p">,</span> <span class="n">exp_tau</span><span class="p">)</span> <span class="o">=</span> <span class="n">BNMF</span><span class="p">.</span><span class="nf">approx_expectation</span><span class="p">(</span><span class="n">burn_in</span><span class="p">,</span><span class="n">thinning</span><span class="p">)</span>
+<span class="n">exp_H</span> <span class="o">=</span> <span class="n">exp_Ht</span><span class="p">.</span><span class="n">T</span>
+<span class="k">print</span> <span class="sh">"</span><span class="s">True sigma: </span><span class="sh">"</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">true_sigma</span><span class="p">)</span> <span class="o">+</span> <span class="sh">"</span><span class="s">, Estimated sigma: </span><span class="sh">"</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exp_tau</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## True sigma: 2.5, Estimated sigma: 2.500152611361593
+</code></pre></div></div>
+
+<p>We can further consider the convergence of our parameter values, specifically \(\sigma^2\) and \(\tau\). We consider the traceplots of their value at each iteration of the Gibbs sampler below (excluding the first 100 iterations).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">taus</span> <span class="o">=</span> <span class="n">BNMF</span><span class="p">.</span><span class="n">all_tau</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span>
+<span class="n">sigmas</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">taus</span>
+
+<span class="c1"># Plot tau and sigma against iterations to see that it converges
+</span><span class="n">f</span><span class="p">,</span> <span class="n">axarr</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nf">len</span><span class="p">(</span><span class="n">taus</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Convergence of values</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sigmas</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Variance, sigma</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">true_sigma</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">gray</span><span class="sh">'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="sh">'</span><span class="s">--</span><span class="sh">'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">True sigma</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">legend</span><span class="p">()</span>
+
+<span class="n">axarr</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">taus</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Precision, tau</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nf">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">true_tau</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">gray</span><span class="sh">'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="sh">'</span><span class="s">--</span><span class="sh">'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">True tau</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nf">legend</span><span class="p">()</span>
+
+<span class="n">axarr</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">BNMF</span><span class="p">.</span><span class="n">all_performances</span><span class="p">[</span><span class="sh">'</span><span class="s">MSE</span><span class="sh">'</span><span class="p">][</span><span class="mi">100</span><span class="p">:])</span>
+<span class="n">axarr</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">MSE</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/img/projects/project5/convergence.png" style="width:65%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We see that after roughly 500 iterations of the Gibbs sampler, we converge on the true value of \(\tau\) and \(\sigma\). We can also evaluate the other two parameters of the Bayesian NMF model, namely the factorizing matrices \(\mathbf{W}\) and \(\mathbf{H}\). Note that the estimated factors are not necessarily the same order as in the true factorizing matrices, so we must infer the proper order. We can simply match columns in \(\mathbf{W}\) or rows in \(\mathbf{H}\) by considering the minimum summed squared difference across the two matrices. We can implement this idea and visualize the results below. Note that we normalize the columns in \(\mathbf{W}\) and rows in \(\mathbf{H}\) to simply allow for reasonable comparison.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">find_rowOrder_min</span><span class="p">(</span><span class="n">mat1</span><span class="p">,</span> <span class="n">mat2</span><span class="p">):</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">mat1</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">all_comp</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="n">mat2</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">mat2</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">all_comp</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">square</span><span class="p">(</span><span class="n">mat1</span><span class="p">[:,</span> <span class="n">i1</span><span class="p">]</span> <span class="o">-</span> <span class="n">mat2</span><span class="p">[:,</span> <span class="n">i2</span><span class="p">]).</span><span class="nf">sum</span><span class="p">()</span>
+        <span class="n">order</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">argmin</span><span class="p">(</span><span class="n">all_comp</span><span class="p">))</span>
+    <span class="nf">return</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">find_colOrder_min</span><span class="p">(</span><span class="n">mat1</span><span class="p">,</span> <span class="n">mat2</span><span class="p">):</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">mat1</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">all_comp</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="n">mat2</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">mat2</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">all_comp</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">square</span><span class="p">(</span><span class="n">mat1</span><span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">mat2</span><span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="p">:]).</span><span class="nf">sum</span><span class="p">()</span>
+        <span class="n">order</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">argmin</span><span class="p">(</span><span class="n">all_comp</span><span class="p">))</span>
+    <span class="nf">return</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+
+<span class="c1"># normalize rows for comparison
+</span><span class="n">W_norm</span> <span class="o">=</span> <span class="n">W</span><span class="o">/</span><span class="n">W</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">exp_W_norm</span> <span class="o">=</span> <span class="n">exp_W</span><span class="o">/</span><span class="n">exp_W</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">exp_W_norm</span> <span class="o">=</span> <span class="n">exp_W_norm</span><span class="p">[:,</span><span class="nf">find_rowOrder_min</span><span class="p">(</span><span class="n">W_norm</span><span class="p">,</span> <span class="n">exp_W_norm</span><span class="p">)]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">heatmap</span><span class="p">(</span><span class="n">W_norm</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="sh">'</span><span class="s">viridis</span><span class="sh">'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">ax1</span><span class="p">.</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">True W</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">heatmap</span><span class="p">(</span><span class="n">exp_W_norm</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="sh">'</span><span class="s">viridis</span><span class="sh">'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="p">.</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Estimated W</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/img/projects/project5/W_comp.png" style="width:70%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># normalize rows for comparison
+</span><span class="n">H_norm</span> <span class="o">=</span> <span class="n">H</span><span class="o">/</span><span class="n">H</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">exp_H_norm</span> <span class="o">=</span> <span class="n">exp_H</span><span class="o">/</span><span class="n">exp_H</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">exp_H_norm</span> <span class="o">=</span> <span class="n">exp_H_norm</span><span class="p">[</span><span class="nf">find_colOrder_min</span><span class="p">(</span><span class="n">H_norm</span><span class="p">,</span> <span class="n">exp_H_norm</span><span class="p">),:]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">heatmap</span><span class="p">(</span><span class="n">H_norm</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="sh">'</span><span class="s">viridis</span><span class="sh">'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">ax1</span><span class="p">.</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">True H</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">heatmap</span><span class="p">(</span><span class="n">exp_H_norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="sh">'</span><span class="s">viridis</span><span class="sh">'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="p">.</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Estimated H</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/assets/img/projects/project5/H_comp.png" style="width:100%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We also see here that the factorizing matrices estimated are actually fairly accurate. “Hotspots”, or cells with high value, in the heatmap above roughly match in the estimated and true factorizing matrices. Thus, we have demonstrated the utility of Bayesian NMF in discerning the factorizing matrices from observed data.</p>
+
+<p>Note that if we did not assume \(K\) was known, we could perform model selection by considering the log-likelihood across several values of \(K\). As \(K\) increases, we expect the log-likelihood to continue increasing, even if marginally, as we give the model more freedom to fit the data; however, this can lead to over-fitting. We can thus penalize the the model’s performance by its complexity.  We can consider the Akaike information criterion (AIC) defined as,</p>
+
+\[AIC = 2\Psi - 2\log p(\mathbf{X}|\boldsymbol\theta)\]
+
+<p>where \(\Psi\) is the number of free parameters in our model. In NMF, this is simply the number of elements in \(\mathbf{W}\) and \(\mathbf{H}\), namely \(NK + Kd\). We can run Bayesian NMF for \(K=5,\dots,14\) and plot the log-likelihood and AIC for the expected model parameters after the Gibbs sampler converges.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># calculate AIC
+</span><span class="n">AIC</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nf">enumerate</span><span class="p">(</span><span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">)):</span>
+    <span class="n">AIC</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">N</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">final_log_likelihood</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="nf">scatterplot</span><span class="p">(</span><span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">),</span> <span class="n">AIC</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="p">.</span><span class="nf">twinx</span><span class="p">()</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">scatterplot</span><span class="p">(</span><span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">),</span> <span class="n">final_log_likelihood</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">red</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">lineplot</span><span class="p">(</span><span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">),</span> <span class="n">AIC</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">lineplot</span><span class="p">(</span><span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">),</span> <span class="n">final_log_likelihood</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">red</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="p">.</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">AIC</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">ax2</span><span class="p">.</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Log-likelihood</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">ax1</span><span class="p">.</span><span class="nf">set_xlabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Number of factors, K</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">'</span><span class="s">Red: AIC, Blue: Log-likelihood</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span> 
+</code></pre></div></div>
+<p><img src="/assets/img/projects/project5/loglik_AIC.png" style="width:65%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We see that this “brute-force” or greedy model selection does in fact show the correct answer. We see a sharp increase in log-likelihood and decrease in AIC at \(K=10\), followed by a plateau, indicating that \(K=10\) is the optimal number of factors under this model, which is correct.</p>
+
+<p><br></p>
+
+<h2 id="olivetti-faces-dataset">Olivetti Faces Dataset</h2>
+
+<p>We apply Bayesian NMF to the Olivetti faces dataset, which containsa a set of face images taken between April 1992 and April 1994 at AT&amp;T Laboratories Cambridge. The dataset includes 400 different images of 40 distinct subjects. Images of subjects were taken at different times, varying the lighting, facial expressions, and facial details (e.g. glasses or no glasses). We select \(K=10\) here based on prior beliefs; however, model selection should be performed to be more rigorous here.</p>
+
+<p>Due to the non-negativity constraints of NMF, we would expect the features it learns, namely the rows of \(\mathbf{H}\), to be key features of a face, which can be weighted by the values in \(\mathbf{W}\) to reconstruct the original faces in the dataset. This is especially in contrast to a method like PCA, which allows for subtraction across features; the features that we expect PCA to learn may not necessarily be specific features of the face since feature subtractions can be used to reconstruct the face images. We run both Bayesian NMF and PCA below</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Load the faces datasets
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">sklearn</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="nf">fetch_olivetti_faces</span><span class="p">()</span>
+<span class="n">data</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">shape</span>
+
+<span class="c1"># PCA (using SVD)
+</span><span class="n">Xc</span> <span class="o">=</span> <span class="n">X</span><span class="o">/</span><span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="nf">svd</span><span class="p">(</span><span class="n">Xc</span><span class="p">)</span>
+<span class="n">Vt</span><span class="p">.</span><span class="n">shape</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">plasma</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mf">6.2</span><span class="p">))</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>        
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">imshow</span><span class="p">(</span><span class="n">Vt</span><span class="p">[</span><span class="n">cnt</span><span class="p">,:].</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">64</span><span class="p">,</span><span class="mi">64</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Feature </span><span class="sh">'</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="n">cnt</span><span class="p">))</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># Bayesian NMF
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">data</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">burn_in</span> <span class="o">=</span> <span class="mi">150</span>
+
+<span class="c1"># Defining priors
+</span><span class="n">omega</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span>
+<span class="n">lambdaW</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">lambdaH</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="sh">'</span><span class="s">alpha</span><span class="sh">'</span><span class="p">:</span> <span class="n">omega</span><span class="p">,</span> <span class="sh">'</span><span class="s">beta</span><span class="sh">'</span><span class="p">:</span><span class="n">eta</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaU</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaW</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaV</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaH</span> <span class="p">}</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">d</span><span class="p">))</span>
+
+<span class="c1"># Run the Gibbs sampler
+</span><span class="n">BNMF</span> <span class="o">=</span> <span class="nf">bnmf_gibbs_optimised</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">initialise</span><span class="p">(</span><span class="n">init_WH</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span>
+<span class="p">(</span><span class="n">exp_W</span><span class="p">,</span> <span class="n">exp_Ht</span><span class="p">,</span> <span class="n">exp_tau</span><span class="p">)</span> <span class="o">=</span> <span class="n">BNMF</span><span class="p">.</span><span class="nf">approx_expectation</span><span class="p">(</span><span class="n">burn_in</span><span class="p">,</span><span class="n">thinning</span><span class="p">)</span>
+<span class="n">exp_H</span> <span class="o">=</span> <span class="n">exp_Ht</span><span class="p">.</span><span class="n">T</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mf">6.2</span><span class="p">))</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>        
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">].</span><span class="nf">imshow</span><span class="p">(</span><span class="n">exp_H</span><span class="p">[</span><span class="n">cnt</span><span class="p">].</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">64</span><span class="p">,</span><span class="mi">64</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Feature </span><span class="sh">'</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="n">cnt</span><span class="p">))</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></div>
+<p><img src="/assets/img/projects/project5/faces_compare.png" style="width:95%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We see that as we expected, the Bayesian NMF method picks up specific features of a face (“puzzle-pieces”) which can be added to reconstruct the original faces in the dataset. Perhaps the best example of this is Feature 4 above, which very clearly represents the eyebrows in the data. Likewise, Feature 6 seems to have picked up the chin, Feature 1 picks up glasses, Feature 8 picks up the outside of the face, and so on. Comparing this to PCA, we see that the features learned by PCA are not nearly as intuitive. The features may add and subtract to reconstruct the faces in the original dataset, but the features themselves do not represent building blocks of the face, similar to in Bayesian NMF. This notion of intuitive features is a very clear advantage of Bayesian NMF (and NMF in general), which results from the non-negativity constraints applied.</p>
+
+<p><br></p>
+
+<h2 id="mnist-dataset">MNIST Dataset</h2>
+
+<p>The MNIST database (Modified National Institute of Standards and Technology) is an extensive database of handwritten digits that is commonly used in the field of unsupervised learning [<a href="#references">8</a>]. Here, we implement Bayesian NMF on a small subset of 10,000 images from this MNIST database available on <a href="https://www.kaggle.com/datasets/oddrationale/mnist-in-csv?resource=download" rel="external nofollow noopener" target="_blank">Kaggle</a>. Similar to before, here, we expect the features learned to be key features of a digit, such as key curves or contours associated with a specific image.</p>
+
+<p>We can also consider more closely the estimated \(\mathbf{W}\) matrix here, which can be interpreted as a matrix of weights for the features defined by the \(\mathbf{H}\) matrix. Since we expect each number class in the dataset to be defined by some addition of the features that NMF learns, then we can assign each data point to the factor or factors, which it weights highly. Essentially, we can “assign” a given point, namely a row in the matrix \(\mathbf{W}\), to the cluster which corresponds to the highest weight in that row. Doing this has the effect of clustering the data, and we would expect each cluster to roughly correspond to 1-2 images. Below, we learn MNIST features using Bayesian NMF, and cluster the data using the method just described. Note that this method draws inspiration from the biological applications of NMF, where genes might be assigned to certain gene batteries for example.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">read_csv</span><span class="p">(</span><span class="sh">'</span><span class="s">./MNIST/mnist_test.csv</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">d</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">].</span><span class="nf">to_numpy</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">d</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:].</span><span class="nf">to_numpy</span><span class="p">()</span>
+
+<span class="c1"># Bayesian NMF
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">data</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">burn_in</span> <span class="o">=</span> <span class="mi">150</span>
+
+<span class="c1"># Defining priors
+</span><span class="n">omega</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span>
+<span class="n">lambdaW</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">lambdaH</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="n">K</span><span class="p">))</span><span class="o">/</span><span class="mi">10</span>
+<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="sh">'</span><span class="s">alpha</span><span class="sh">'</span><span class="p">:</span> <span class="n">omega</span><span class="p">,</span> <span class="sh">'</span><span class="s">beta</span><span class="sh">'</span><span class="p">:</span><span class="n">eta</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaU</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaW</span><span class="p">,</span> <span class="sh">'</span><span class="s">lambdaV</span><span class="sh">'</span><span class="p">:</span><span class="n">lambdaH</span> <span class="p">}</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">d</span><span class="p">))</span>
+
+<span class="c1"># Run the Gibbs sampler
+</span><span class="n">BNMF</span> <span class="o">=</span> <span class="nf">bnmf_gibbs_optimised</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">initialise</span><span class="p">(</span><span class="n">init_WH</span><span class="p">)</span>
+<span class="n">BNMF</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span>
+<span class="p">(</span><span class="n">exp_W</span><span class="p">,</span> <span class="n">exp_Ht</span><span class="p">,</span> <span class="n">exp_tau</span><span class="p">)</span> <span class="o">=</span> <span class="n">BNMF</span><span class="p">.</span><span class="nf">approx_expectation</span><span class="p">(</span><span class="n">burn_in</span><span class="p">,</span><span class="n">thinning</span><span class="p">)</span>
+<span class="n">exp_H</span> <span class="o">=</span> <span class="n">exp_Ht</span><span class="p">.</span><span class="n">T</span>
+
+<span class="c1"># Extract featuresplt.figure(figsize=(2,5))
+</span><span class="n">plt</span><span class="p">.</span><span class="nf">plasma</span><span class="p">()</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>        
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">].</span><span class="nf">imshow</span><span class="p">(</span><span class="n">exp_H</span><span class="p">[</span><span class="n">cnt</span><span class="p">].</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">'</span><span class="s">Feature </span><span class="sh">'</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="n">cnt</span><span class="p">))</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># "Clustering"
+</span><span class="n">exp_W_norm</span> <span class="o">=</span> <span class="n">exp_W</span> <span class="o">/</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">exp_W</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">assigns</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">argmax</span><span class="p">(</span><span class="n">exp_W</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">mean_clust</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="n">K</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<span class="n">tt</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="n">assigns</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">mean_clust</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">,:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sz</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">val</span><span class="p">,</span> <span class="n">cnts</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">return_counts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">lab</span><span class="p">,</span> <span class="n">contrib</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">cnts</span> <span class="o">&gt;</span> <span class="n">sz</span><span class="o">/</span><span class="mf">4.</span><span class="p">],</span> <span class="n">cnts</span><span class="p">[</span><span class="n">cnts</span> <span class="o">&gt;</span> <span class="n">sz</span><span class="o">/</span><span class="mf">4.</span><span class="p">]</span>
+    <span class="nf">if</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">contrib</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">lab</span><span class="p">,</span> <span class="n">contrib</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">cnts</span> <span class="o">==</span> <span class="nf">max</span><span class="p">(</span><span class="n">cnts</span><span class="p">)],</span> <span class="n">cnts</span><span class="p">[</span><span class="n">cnts</span> <span class="o">==</span> <span class="nf">max</span><span class="p">(</span><span class="n">cnts</span><span class="p">)]</span>
+    <span class="n">str_t</span> <span class="o">=</span> <span class="sh">"</span><span class="s">, </span><span class="sh">"</span><span class="p">.</span><span class="nf">join</span><span class="p">([</span><span class="nf">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="sh">"</span><span class="s">: </span><span class="sh">"</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="mf">100.</span><span class="o">*</span><span class="n">j</span><span class="o">/</span><span class="nf">float</span><span class="p">(</span><span class="n">sz</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="sh">"</span><span class="s">%</span><span class="sh">"</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nf">zip</span><span class="p">(</span><span class="n">lab</span><span class="p">,</span> <span class="n">contrib</span><span class="p">)])</span>
+    <span class="n">tt</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">str_t</span><span class="o">+</span><span class="sh">"</span><span class="s"> (size </span><span class="sh">"</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span><span class="o">+</span><span class="sh">"</span><span class="s">)</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>        
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">imshow</span><span class="p">(</span><span class="n">mean_clust</span><span class="p">[</span><span class="n">cnt</span><span class="p">].</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">].</span><span class="nf">set_title</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="n">cnt</span><span class="p">])</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<p><img src="/assets/img/projects/project5/MNIST_BNMF_featclust.png" style="width:95%; display: block; margin: auto;"></p>
+
+<p><br></p>
+
+<p>We see that the features and clusters above do in fact roughly correspond to the different images in the MNIST dataset. Above each cluster, we include the high contributors to each of the clusters. The features themselves seem to be key elements of a digit image, such as the curve of a “6” digit in Feature 0. Further, aligning the features to clusters above, we can see that each feature roughly corresponds to a cluster, specifically indicated by the brighter regions in each feature. These results again demonstrate the utility of Bayesian NMF in discerning a small subset of important representative features of a dataset.</p>
+
+<p><br></p>
+
+<h1 id="discussion">Discussion</h1>
+
+<h4 id="strengths"><em>Strengths</em></h4>
+
+<p>Here, we discuss Bayesian NMF, which has a variety of advantages over the original NMF algorithm introduced by Lee and Seung [<a href="#references">1</a>]. In particular, prior knowledge can be incorporated into the factorization process, which may improve the quality of the resulting factorization by incorporating domain-specific knowledge and reducing overfitting [<a href="#references">4</a>]. Incorporating prior beliefs in the factorization process will also dramatically reduce the convergence time for the Gibbs sampler; this is a great advantage over regular NMF which converge relatively slowly by coordinate descent. The incorporation of prior beliefs can also be considered as regularization during the factorization process, thereby making Bayesian NMF more robust to noise.</p>
+
+<p>A particularly useful feature of Bayesian NMF is its ability to provide uncertainty estimates for the factors. Uncertainty estimation and out-of-distribution robustness are critical issues to address in the context of machine learning. For example, in medical applications, an over-confident misprediction, namely with an inaccurate uncertainty estimate, may result in a misdiagnosis that is not subsequently considered by a physician as a result. This can clearly have disastrous consequences [<a href="#references">9</a>]. Thus, by providing uncertainty estimates for the factors, Bayesian NMF offers more interpretable resulting factors.</p>
+
+<p>The Gibbs sampling procedure introduced can also directly be used to estimate the marginal likelihood, which is useful for model order selection. Further, the ICM algorithm discussed briefly for computing the MAP estimate has been shown to rival even existing state-of-the-art NMF algorithms [<a href="#references">4</a>].</p>
+
+<p>Ultimately, Bayesian NMF and the original NMF algorithm offer a variety of advantages in allowing for decomposition of a data matrix into a product of two lower-rank matrices. In particular, this can be useful for data compression, feature extraction, and dimensionality reduction. Bayesian NMF can provide a compact and more interpretable representation of the data, which can used downstream for techniques such as clustering (demonstrated here), classification, and visualization. In addition, the low-rank structure of the resulting factorizing matrices provides valuable insight into the underlying structure of the data, thereby facilitating the discovery of latent patterns and trends in the data.</p>
+
+<p><br></p>
+
+<h4 id="weaknesses"><em>Weaknesses</em></h4>
+
+<p>NMF is a widely-used method for extracting meaningful and more interpretable feature decompositions from non-negative data sets, and this non-negativity constraint is both natural and relevant to a wide variety of contexts as discussed earlier. However, its lack of flexibility for negative data values may limit its performance in some applications.</p>
+
+<p>Specifically, Bayesian NMF is also fairly sensitivity to the priors and initialization selected, and as a result, it may converge to suboptimal solutions, making it difficult to obtain consistent results with NMF. The lack of a closed-form analytical solution is a clear weakness which demands iterative methods in the case of NMF or MCMC methods in the case of Bayesian NMF here. In particular, this makes Bayesian NMF prone to local optima solutions; selecting appropriate priors or starting from several random initializations and subsequently considering the log-likelihood are useful strategies to avoid non-global optima solutions.</p>
+
+<p>While the methods introduced here, in particular the Gibbs sampler and ICM, are great techniques for achieving faster convergence (sometimes even faster than the original NMF algorithm), computational complexity is surely a weakness in the Bayesian inference framework. This can make it particularly challenging to apply Bayesian NMF to large data sets.</p>
+
+<p><br></p>
+
+<h1 id="references">References</h1>
+
+<p>[<a href="#references">1</a>] Lee, D., &amp; Seung, H. S. (2000). Algorithms for non-negative matrix factorization. Advances in Neural Information Processing Systems, 13.</p>
+
+<p>[<a href="#references">2</a>] Gaussier, E., &amp; Goutte, C. (2005). Relation between PLSA and NMF and implications. Proceedings of the 28th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval, 601–602.</p>
+
+<p>[<a href="#references">3</a>] Sherman, T. D., Gao, T., &amp; Fertig, E. J. (2020). CoGAPS 3: Bayesian non-negative matrix factorization for single-cell analysis with asynchronous updates and sparse data structures. BMC Bioinformatics, 21(1), 1–6.</p>
+
+<p>[<a href="#references">4</a>] Schmidt, M. N., Winther, O., &amp; Hansen, L. K. (2009). Bayesian non-negative matrix factorization. International Conference on Independent Component Analysis and Signal Separation, 540–547.</p>
+
+<p>[<a href="#references">5</a>] Chib, S. (1995). Marginal likelihood from the gibbs output. Journal of the American Statistical Associa- tion, 90(432), 1313–1321.</p>
+
+<p>[<a href="#references">6</a>] Besag, J. (1986). On the statistical analysis of dirty pictures. Journal of the Royal Statistical Society: Series B (Methodological), 48(3), 259–279.</p>
+
+<p>[<a href="#references">7</a>] Brouwer, T., Frellsen, J., &amp; Lio, P. (2016). Fast bayesian non-negative matrix factorisation and tri- factorisation. arXiv Preprint arXiv:1610.08127.</p>
+
+<p>[<a href="#references">8</a>] LeCun, Y. (1998). The MNIST database of handwritten digits. Http://Yann. Lecun. Com/Exdb/Mnist/.</p>
+
+<p>[<a href="#references">9</a>] Dusenberry, M. W., Tran, D., Choi, E., Kemp, J., Nixon, J., Jerfel, G., Heller, K., &amp; Dai, A. M. (2020). Analyzing the role of model uncertainty for electronic health records. Proceedings of the ACM Conference on Health, Inference, and Learning, 204–213.</p>
+
+
+          </article>
+
+        </div>
+
+          </div>
+          <!-- sidebar, which will move to the top on a small screen -->
+          <div class="col-sm-1">
+            <nav id="toc-sidebar" class="sticky-top" style="white-space: nowrap;"></nav>
+          </div>
+        </div>
+        
+      
+    </div>
+
+    <!-- Footer -->    <br>
+    <footer class="sticky-bottom mt-5">
+      <div class="container" style="text-align: center;">
+        © Copyright 2024 Ahmad  Abdel-Azim. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a>.
+
+      </div>
+    </footer>
+
+    <!-- JavaScripts -->
+    <!-- jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Bootsrap & MDB scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha256-fgLAgv7fyCGopR/gBNq2iW3ZKIdqIcyshnUULC4vex8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script>
+
+    <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+  <script defer src="/assets/js/masonry.js" type="text/javascript"></script>
+    
+  <!-- Medium Zoom JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/zoom.js"></script>
+  <!-- Sidebar Table of Contents -->
+  <script defer src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
+
+  <!-- Bootstrap Table -->
+  <script defer src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
+
+  <!-- Load Common JS -->
+  <script src="/assets/js/no_defer.js"></script>
+  <script defer src="/assets/js/common.js"></script>
+  <script defer src="/assets/js/copy_code.js" type="text/javascript"></script>
+
+    
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+    <!-- MathJax -->
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+    
+    
+
+<!-- Scrolling Progress Bar -->
+<script type="text/javascript">
+  /*
+   * This JavaScript code has been adapted from the article 
+   * https://css-tricks.com/reading-position-indicator/ authored by Pankaj Parashar, 
+   * published on the website https://css-tricks.com on the 7th of May, 2014.
+   * Couple of changes were made to the original code to make it compatible 
+   * with the `al-foio` theme.
+   */
+  const progressBar = $("#progress");
+  /*
+   * We set up the bar after all elements are done loading.
+   * In some cases, if the images in the page are larger than the intended
+   * size they'll have on the page, they'll be resized via CSS to accomodate
+   * the desired size. This mistake, however, breaks the computations as the
+   * scroll size is computed as soon as the elements finish loading.
+   * To account for this, a minimal delay was introduced before computing the
+   * values.
+   */
+  window.onload = function () {
+    setTimeout(progressBarSetup, 50);
+  };
+  /*
+   * We set up the bar according to the browser.
+   * If the browser supports the progress element we use that.
+   * Otherwise, we resize the bar thru CSS styling
+   */
+  function progressBarSetup() {
+    if ("max" in document.createElement("progress")) {
+      initializeProgressElement();
+      $(document).on("scroll", function() {
+        progressBar.attr({ value: getCurrentScrollPosition() });
+      });
+      $(window).on("resize", initializeProgressElement);
+    } else {
+      resizeProgressBar();
+      $(document).on("scroll", resizeProgressBar);
+      $(window).on("resize", resizeProgressBar);
+    }
+  }
+  /*
+   * The vertical scroll position is the same as the number of pixels that
+   * are hidden from view above the scrollable area. Thus, a value > 0 is
+   * how much the user has scrolled from the top
+   */
+  function getCurrentScrollPosition() {
+    return $(window).scrollTop();
+  }
+
+  function initializeProgressElement() {
+    let navbarHeight = $("#navbar").outerHeight(true);
+    $("body").css({ "padding-top": navbarHeight });
+    $("progress-container").css({ "padding-top": navbarHeight });
+    progressBar.css({ top: navbarHeight });
+    progressBar.attr({
+      max: getDistanceToScroll(),
+      value: getCurrentScrollPosition(),
+    });
+  }
+  /*
+   * The offset between the html document height and the browser viewport
+   * height will be greater than zero if vertical scroll is possible.
+   * This is the distance the user can scroll
+   */
+  function getDistanceToScroll() {
+    return $(document).height() - $(window).height();
+  }
+
+  function resizeProgressBar() {
+    progressBar.css({ width: getWidthPercentage() + "%" });
+  }
+  // The scroll ratio equals the percentage to resize the bar
+  function getWidthPercentage() {
+    return (getCurrentScrollPosition() / getDistanceToScroll()) * 100;
+  }
+</script>
+
+  </body>
+</html>
